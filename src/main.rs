@@ -12,7 +12,14 @@ use sdl2::rect::{Point, Rect};
 use std::path::Path;
 use std::{thread, time::Duration};
 
-// TODO: separate the character into frames, match up for walking
+/*
+The following items are outstanding:
+- Abstract SDL logic away from game code
+- Implement map with scrolling in four direction
+- Keep player on map
+- Sprite changing frames while moving
+- Pass input to player using observer
+*/
 
 /// Emulated screen width in pixels
 const SCREEN_WIDTH: usize = 256*2;
@@ -23,8 +30,9 @@ const SCREEN_SIZE: usize = SCREEN_WIDTH * SCREEN_HEIGHT * 3;
 
 const SCALE: usize = 1;
 
-const SPRITE_W: u32 = 26;
-const SPRITE_H: u32 = 36;
+const PLAYER_W: u32 = 26;
+const PLAYER_H: u32 = 36;
+const PLAYER_SPEED: i32 = 5;
 
 // handles renderable character
 //#[derive(Debug)]
@@ -35,7 +43,17 @@ struct Sprite<'a> {
     spritesheet: Texture<'a>
 }
 
-impl Sprite<'_> {
+impl <'a> Sprite<'a> {
+    fn new(width: u32, height: u32, speed: i32, spritesheet: Texture<'a>) -> Sprite {
+        Self {
+            position: Point::new(0, 0),
+            // src position in the spritesheet
+            area: Rect::new(0, 0, width, height),
+            speed: speed,
+            spritesheet: spritesheet
+        }
+    }
+
     fn movespr(&mut self, xdiff: i32, ydiff: i32) {
         self.position = self.position.offset(xdiff, ydiff);
     }
@@ -91,17 +109,10 @@ pub fn main() {
         .map_err(|e| e.to_string()).unwrap();
  
     let texture_creator = canvas.texture_creator();
-    let png = Path::new("assets/reaper.png");
+    let ss = texture_creator.load_texture(Path::new("assets/reaper.png")).unwrap();
 
     let mut player = Player {
-        // todo: create Sprite::new() method
-        spr: Sprite {
-            position: Point::new(0, 0),
-            // src position in the spritesheet
-            area: Rect::new(0, 0, SPRITE_W, SPRITE_H),
-            speed: 5,
-            spritesheet: texture_creator.load_texture(png).unwrap()
-        }
+        spr: Sprite::new(PLAYER_W, PLAYER_H, PLAYER_SPEED, ss)
     };
 
     let bg_color = Color::RGB(120, 255, 255);
