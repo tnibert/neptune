@@ -65,6 +65,15 @@ struct Player<'a> {
     spr: Sprite<'a>
 }
 
+impl <'a> Player<'a> {
+    fn new(spritesheet: Texture<'a>) -> Player {
+        Self {
+            spr: Sprite::new(PLAYER_W, PLAYER_H, PLAYER_SPEED, spritesheet)
+        }
+    }
+}
+
+
 fn render(
     canvas: &mut WindowCanvas,
     color: Color,
@@ -111,9 +120,7 @@ pub fn main() {
     let texture_creator = canvas.texture_creator();
     let ss = texture_creator.load_texture(Path::new("assets/reaper.png")).unwrap();
 
-    let mut player = Player {
-        spr: Sprite::new(PLAYER_W, PLAYER_H, PLAYER_SPEED, ss)
-    };
+    let mut player = Player::new(ss);
 
     let bg_color = Color::RGB(120, 255, 255);
     canvas.set_draw_color(bg_color);
