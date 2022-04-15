@@ -1,17 +1,14 @@
 extern crate sdl2;
 
-use sdl2::render::{Canvas, WindowCanvas, Texture, TextureAccess};
-use sdl2::Sdl;
-use sdl2::pixels::PixelFormatEnum;
-use sdl2::render::TextureCreator;
-use sdl2::video::Window;
-use sdl2::video::WindowContext;
+use sdl2::render::{Canvas, WindowCanvas, Texture};
+//use sdl2::Sdl;
+//use sdl2::video::Window;
+//use sdl2::video::WindowContext;
 use sdl2::pixels::Color;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::image::{InitFlag, LoadTexture};
 use sdl2::rect::{Point, Rect};
-use std::env;
 use std::path::Path;
 use std::{thread, time::Duration};
 
@@ -127,8 +124,7 @@ pub fn main() {
                     break 'running
                 },
                 // player control
-                // how to allow diagonal movement?
-                // answer: don't set the player position directly here
+                // todo: allow diagonal movement
                 Event::KeyDown { keycode: Some(Keycode::Left), .. } => {
                     player.spr.movespr(-player.spr.speed, 0);
                 },
