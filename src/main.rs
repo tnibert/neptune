@@ -1,6 +1,11 @@
 extern crate sdl2;
 
+mod sprite;
+mod player;
+use crate::player::Player;
+
 use sdl2::render::{Canvas, WindowCanvas, Texture};
+use sdl2::rect::{Point, Rect};
 //use sdl2::Sdl;
 //use sdl2::video::Window;
 //use sdl2::video::WindowContext;
@@ -8,17 +13,19 @@ use sdl2::pixels::Color;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::image::{InitFlag, LoadTexture};
-use sdl2::rect::{Point, Rect};
 use std::path::Path;
 use std::{thread, time::Duration};
 
 /*
 The following items are outstanding:
 - Abstract SDL logic away from game code
+    - wrap Texture
 - Implement map with scrolling in four direction
 - Keep player on map
 - Sprite changing frames while moving
 - Pass input to player using observer
+
+- Each renderable item should be able to render itself
 */
 
 /// Emulated screen width in pixels
@@ -29,50 +36,6 @@ const SCREEN_HEIGHT: usize = 240*2;
 const SCREEN_SIZE: usize = SCREEN_WIDTH * SCREEN_HEIGHT * 3;
 
 const SCALE: usize = 1;
-
-const PLAYER_W: u32 = 26;
-const PLAYER_H: u32 = 36;
-const PLAYER_SPEED: i32 = 5;
-
-// handles renderable character
-//#[derive(Debug)]
-struct Sprite<'a> {
-    position: Point,
-    area: Rect,
-    speed: i32,
-    spritesheet: Texture<'a>
-}
-
-impl <'a> Sprite<'a> {
-    fn new(width: u32, height: u32, speed: i32, spritesheet: Texture<'a>) -> Sprite {
-        Self {
-            position: Point::new(0, 0),
-            // src position in the spritesheet
-            area: Rect::new(0, 0, width, height),
-            speed: speed,
-            spritesheet: spritesheet
-        }
-    }
-
-    fn movespr(&mut self, xdiff: i32, ydiff: i32) {
-        self.position = self.position.offset(xdiff, ydiff);
-    }
-}
-
-// handles player
-//#[derive(Debug)]
-struct Player<'a> {
-    spr: Sprite<'a>
-}
-
-impl <'a> Player<'a> {
-    fn new(spritesheet: Texture<'a>) -> Player {
-        Self {
-            spr: Sprite::new(PLAYER_W, PLAYER_H, PLAYER_SPEED, spritesheet)
-        }
-    }
-}
-
 
 fn render(
     canvas: &mut WindowCanvas,
@@ -122,7 +85,7 @@ pub fn main() {
 
     let mut player = Player::new(ss);
 
-    let bg_color = Color::RGB(120, 255, 255);
+    let bg_color = Color::RGB(255, 255, 255);
     canvas.set_draw_color(bg_color);
     canvas.clear();
     canvas.present();
