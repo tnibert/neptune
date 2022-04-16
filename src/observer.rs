@@ -3,6 +3,7 @@ use std::rc::Weak;
 use std::rc::Rc;
 use std::cell::RefCell;
 
+// todo: should this rather be a struct?
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]
 enum Event {
     Test1,
@@ -16,16 +17,9 @@ trait Observer {
     fn notify(&mut self, e: Event);
 }
 
-struct TestObserver {}
-
-impl Observer for TestObserver {
-    fn notify(&mut self, e: Event) {
-        println!("Received {:?}", e);
-    }
-}
-
 struct Observable {
     // hashmap containing key: Event, list of subscribed Observers
+    // todo: don't use an Observer object, map directly to a function/method/closure
     subscriptions: HashMap<Event, Vec<Weak<RefCell<dyn Observer>>>>
 }
 
@@ -72,26 +66,41 @@ impl Observable {
     }
 }
 
-fn main() {
-    // create observers
-    let testobserver1 = Rc::new(RefCell::new(TestObserver {}));
-    let testdg1 = Rc::downgrade(&testobserver1);
-    let testobserver2 = Rc::new(RefCell::new(TestObserver {}));
-    let testdg2 = Rc::downgrade(&testobserver2);
-    let testobserver3 = Rc::new(RefCell::new(TestObserver {}));
-    let testdg3 = Rc::downgrade(&testobserver3);
-    let testobserver4 = Rc::new(RefCell::new(TestObserver {}));
-    let testdg4 = Rc::downgrade(&testobserver4);
+// unit tests
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-    // create observable and subscriptions
-    let mut testobservable: Observable = Observable::new();
-    testobservable.subscribe(Event::Test1, testdg1);
-    testobservable.subscribe(Event::Test1, testdg2);
-    testobservable.subscribe(Event::Test1, testdg3);
-    testobservable.subscribe(Event::Test1, testdg4);
+    struct TestObserver {}
 
-    // notify events
-    testobservable.notify(Event::Test1);
-    // todo: make this one work with a variable string
-    testobservable.notify(Event::Test2("test".to_string()));
+    impl Observer for TestObserver {
+        fn notify(&mut self, e: Event) {
+            println!("Received {:?}", e);
+        }
+    }
+
+    #[test]
+    fn test_notify() {
+        // create observers
+        let testobserver1 = Rc::new(RefCell::new(TestObserver {}));
+        let testdg1 = Rc::downgrade(&testobserver1);
+        let testobserver2 = Rc::new(RefCell::new(TestObserver {}));
+        let testdg2 = Rc::downgrade(&testobserver2);
+        let testobserver3 = Rc::new(RefCell::new(TestObserver {}));
+        let testdg3 = Rc::downgrade(&testobserver3);
+        let testobserver4 = Rc::new(RefCell::new(TestObserver {}));
+        let testdg4 = Rc::downgrade(&testobserver4);
+
+        // create observable and subscriptions
+        let mut testobservable: Observable = Observable::new();
+        testobservable.subscribe(Event::Test1, testdg1);
+        testobservable.subscribe(Event::Test1, testdg2);
+        testobservable.subscribe(Event::Test1, testdg3);
+        testobservable.subscribe(Event::Test1, testdg4);
+
+        // notify events
+        testobservable.notify(Event::Test1);
+        // todo: make this one work with a variable string
+        testobservable.notify(Event::Test2("test".to_string()));
+    }
 }

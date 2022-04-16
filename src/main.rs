@@ -1,5 +1,6 @@
 extern crate sdl2;
 
+mod observer;
 mod sprite;
 mod player;
 use crate::player::Player;
