@@ -16,16 +16,17 @@ pub enum Event {
 }*/
 
 
-#[derive(Debug, PartialEq, Eq, Hash, Clone)]
-struct Event {
-    name: String
-    // source: Observable
+//#[derive(Debug, PartialEq, Eq, Hash, Clone)]
+struct Event <'a>{
+    name: String,
+    source: &'a Observable<'a>
 }
 
-impl Event {
-    fn new(name: String) -> Event {
+impl <'a> Event <'a> {
+    fn new(name: String, source: &'a Observable<'a>) -> Event<'a> {
         Self {
-            name: name
+            name: name,
+            source: source
         }
     }
 }
@@ -36,12 +37,13 @@ pub struct Observer {
 }
 
 impl Observer {
-    fn receive(&self, e: Event) {
-        println!("Event received: {}", e.name);
+    fn receive(&self, e: &Event) {
+        println!("Event received from {}: {}", e.source.name, e.name);
     }
 }
 
 pub struct Observable <'a> {
+    name: String,
     // hashmap containing key: Event, list of subscribed Observers
     // todo: don't use an Observer object, map directly to a function/method/closure
     //subscriptions: HashMap<Event, Vec<Weak<RefCell<T>>>>
@@ -52,8 +54,9 @@ pub struct Observable <'a> {
 where 
     T: Observer,*/
 impl <'a> Observable <'a> {
-    pub fn new() -> Observable <'a> {
+    pub fn new(name: String) -> Observable <'a> {
         Self {
+            name: name,
             subscribers: Vec::new()  //HashMap::new()
         }
     }
@@ -98,10 +101,12 @@ impl <'a> Observable <'a> {
             }
         }
     }*/
-    pub fn notify(&self, e: Event) {
+    pub fn notify(&self, evt_name: String) {
+        let e = Event{name: evt_name,
+                      source: self};
         // immutable iteration
         for s in &self.subscribers {
-            s.receive(e.clone());
+            s.receive(&e);
         }
     }
 }
@@ -176,13 +181,13 @@ mod tests {
     // run with 'cargo test -- --nocapture' to see println! output
     #[test]
     fn test_observer_integration() {
-        let mut obsable = Observable::new();
+        let mut obsable = Observable::new("my_observable".to_string());
         let obser1 = Observer{};
         let obser2 = Observer{};
 
         obsable.subscribe(&obser1);
         obsable.subscribe(&obser2);
-        obsable.notify(Event{name:"testevent".to_string()});
+        obsable.notify("test_event".to_string());
     }
 }
 
