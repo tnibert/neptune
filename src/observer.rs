@@ -3,16 +3,16 @@ use std::cell::RefCell;
 
 
 //#[derive(Debug, PartialEq, Eq, Hash, Clone)]
-struct Event {
+struct Event <'a> {
     name: String,
-    //source: Observable
+    source: &'a Observable <'a>
 }
 
-impl Event {
-    fn new(name: String/*, source: &'a Observable<'a>*/) -> Event {
+impl <'a> Event <'a> {
+    fn new(name: String, source: &'a Observable <'a>) -> Event <'a> {
         Self {
             name: name,
-            //source: source
+            source: source
         }
     }
 }
@@ -33,7 +33,7 @@ impl <'a> Observer <'a> {
     }
 
     fn receive(&self, e: &Event) {
-        println!("Event received: {}", /*e.source.name,*/ e.name);
+        println!("Event received from {}: {}", e.source.name, e.name);
         let mut receiver = self.receiver.borrow_mut();
         receiver.receive(e);
     }
@@ -73,8 +73,8 @@ impl <'a> Observable <'a> {
     
     // Notify all subscribers to the given Event
     pub fn notify(&self, evt_name: String) {
-        let e = Event{name: evt_name.clone()};//,
-                      //source: self};
+        let e = Event{name: evt_name.clone(),
+                      source: self};
         match self.subscribers.get(&evt_name) {
             Some(to_notify) => {
                 // immutable iteration
