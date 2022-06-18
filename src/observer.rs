@@ -17,6 +17,7 @@ impl <'a> Event <'a> {
 }
 
 // todo: make trait
+#[derive(PartialEq)]
 pub struct Observer {
     //fn receive(&mut self, e: Event);
 }
@@ -41,22 +42,26 @@ impl <'a> Observable <'a> {
         }
     }
 
-    // subscribe an Observer to an Event
+    // Subscribe an Observer to an event
     pub fn subscribe(&mut self, evt_name: String, subscriber: &'a Observer) {
         match self.subscribers.get_mut(&evt_name) {
-            Some(val) => val.push(subscriber),
+            Some(vec) => vec.push(subscriber),
             None => {
                 self.subscribers.insert(evt_name, vec![subscriber]);
             }
         };
     }
 
-    // todo: remove an Observer from an Event subscription
-    /*fn unsubscribe(&mut self, evt_name: String, o: &Observer) {
-
-    }*/
+    // Remove an Observer from an event subscription
+    fn unsubscribe(&mut self, evt_name: String, subscriber: &'a Observer) {
+        match self.subscribers.get_mut(&evt_name) {
+            Some(vec) => vec.retain(|x| !std::ptr::eq(*x, subscriber)),
+            None => {}
+        };
+        ;
+    }
     
-    // notify all subscribers to the given Event
+    // Notify all subscribers to the given Event
     pub fn notify(&self, evt_name: String) {
         let e = Event{name: evt_name.clone(),
                       source: self};
@@ -90,6 +95,9 @@ mod tests {
 
         obsable.notify("test_event".to_string());
         obsable.notify("bam".to_string());
+
+        obsable.unsubscribe("test_event".to_string(), &obser2);
+        obsable.notify("test_event".to_string());
     }
 }
 
