@@ -17,34 +17,15 @@ impl <'a> Event <'a> {
     }
 }
 
-trait EventReceiver {
+trait Observer {
     fn receive(&mut self, e: &Event);
-}
-
-// idea: is it possible to remove this layer and just add the RefCells to the Observable directly?
-pub struct Observer <'a> {
-    receiver: &'a RefCell<dyn EventReceiver>
-}
-
-impl <'a> Observer <'a> {
-    pub fn new(actioner: &'a RefCell<dyn EventReceiver>) -> Observer {
-        Self {
-            receiver: actioner
-        }
-    }
-
-    fn receive(&self, e: &Event) {
-        println!("Event received from {}: {}", e.source.name, e.name);
-        let mut receiver = self.receiver.borrow_mut();
-        receiver.receive(e);
-    }
 }
 
 // is it reasonable to make this a trait? or should a struct just hold an Observable?
 pub struct Observable <'a> {
     name: String,
     // idea: don't use an Observer object, map directly to a function/method/closure?
-    subscribers: HashMap<String, Vec<&'a Observer <'a>>>
+    subscribers: HashMap<String, Vec<&'a RefCell<dyn Observer>>>
 }
 
 impl <'a> Observable <'a> {
@@ -57,7 +38,7 @@ impl <'a> Observable <'a> {
 
     // Subscribe an Observer to an event
     // idea: should explicitly prevent subscribing the same Observer twice?
-    pub fn subscribe(&mut self, evt_name: String, subscriber: &'a Observer <'a>) {
+    pub fn subscribe(&mut self, evt_name: String, subscriber: &'a RefCell<dyn Observer>) {
         match self.subscribers.get_mut(&evt_name) {
             Some(vec) => vec.push(subscriber),
             None => {
@@ -67,7 +48,7 @@ impl <'a> Observable <'a> {
     }
 
     // Remove an Observer from an event subscription
-    fn unsubscribe(&mut self, evt_name: String, subscriber: &'a Observer <'a>) {
+    fn unsubscribe(&mut self, evt_name: String, subscriber: &'a RefCell<dyn Observer>) {
         match self.subscribers.get_mut(&evt_name) {
             Some(vec) => vec.retain(|x| !std::ptr::eq(*x, subscriber)),
             None => {}
@@ -82,7 +63,8 @@ impl <'a> Observable <'a> {
             Some(to_notify) => {
                 // immutable iteration
                 for s in to_notify {
-                    s.receive(&e);
+                    let mut receiver = s.borrow_mut();
+                    receiver.receive(&e);
                 }
             },
             None => {}
@@ -99,9 +81,9 @@ mod tests {
         counter: i32
     }
 
-    impl EventReceiver for ObserverState {
+    impl Observer for ObserverState {
         fn receive(&mut self, e: &Event) {
-            //println!("received in event receiver");
+            println!("Event received from {}: {}", e.source.name, e.name);
             self.counter = self.counter + 1;
         }
     }
@@ -110,11 +92,10 @@ mod tests {
     fn test_subscribe() {
         let mut obsable = Observable::new("my_observable".to_string());
         let mystate1 = RefCell::new(ObserverState{counter: 0});
-        let obser1 = Observer::new(&mystate1);
 
         obsable.notify("test_event".to_string());
         assert_eq!(mystate1.borrow().counter, 0);
-        obsable.subscribe("test_event".to_string(), &obser1);
+        obsable.subscribe("test_event".to_string(), &mystate1);
         obsable.notify("test_event".to_string());
         assert_eq!(mystate1.borrow().counter, 1);
         obsable.notify("test_event".to_string());
@@ -125,19 +106,17 @@ mod tests {
     fn test_unsubscribe() {
         let mut obsable = Observable::new("my_observable".to_string());
         let mystate1 = RefCell::new(ObserverState{counter: 0});
-        let obser1 = Observer::new(&mystate1);
 
-        obsable.subscribe("test_event".to_string(), &obser1);
+        obsable.subscribe("test_event".to_string(), &mystate1);
         obsable.notify("test_event".to_string());
         assert_eq!(mystate1.borrow().counter, 1);
-        obsable.unsubscribe("test_event".to_string(), &obser1);
+        obsable.unsubscribe("test_event".to_string(), &mystate1);
         obsable.notify("test_event".to_string());
         assert_eq!(mystate1.borrow().counter, 1);
     }
 
 
     // run with 'cargo test -- --nocapture' to see println! output
-    // todo: make into proper unit tests
     #[test]
     fn test_observer_integration() {
         let mut obsable = Observable::new("my_observable".to_string());
@@ -145,17 +124,14 @@ mod tests {
         let mystate1 = RefCell::new(ObserverState{counter: 0});
         let mystate2 = RefCell::new(ObserverState{counter: 0});
 
-        let obser1 = Observer::new(&mystate1);
-        let obser2 = Observer::new(&mystate2);
-
-        obsable.subscribe("test_event".to_string(), &obser1);
-        obsable.subscribe("test_event".to_string(), &obser2);
-        obsable.subscribe("bam".to_string(), &obser2);
+        obsable.subscribe("test_event".to_string(), &mystate1);
+        obsable.subscribe("test_event".to_string(), &mystate2);
+        obsable.subscribe("bam".to_string(), &mystate2);
 
         obsable.notify("test_event".to_string());
         obsable.notify("bam".to_string());
 
-        obsable.unsubscribe("test_event".to_string(), &obser2);
+        obsable.unsubscribe("test_event".to_string(), &mystate2);
         obsable.notify("test_event".to_string());
 
         println!("{}, {}", mystate1.borrow().counter, mystate2.borrow().counter);
