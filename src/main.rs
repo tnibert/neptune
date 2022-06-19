@@ -3,7 +3,11 @@ extern crate sdl2;
 mod observer;
 mod sprite;
 mod player;
+mod input;
+
+//use crate::observer;
 use crate::player::Player;
+use crate::input::Input;
 
 use sdl2::render::{Canvas, WindowCanvas, Texture};
 use sdl2::rect::{Point, Rect};
@@ -11,20 +15,22 @@ use sdl2::rect::{Point, Rect};
 //use sdl2::video::Window;
 //use sdl2::video::WindowContext;
 use sdl2::pixels::Color;
-use sdl2::event::Event;
-use sdl2::keyboard::Keycode;
 use sdl2::image::{InitFlag, LoadTexture};
 use std::path::Path;
 use std::{thread, time::Duration};
 
+use std::cell::RefCell;
+
 /*
-The following items are outstanding:
-- Abstract SDL logic away from game code
-    - wrap Texture
+Looking to create a town that the character can move through
+and interact with.
+
+A few items outstanding:
+- Create Game struct encapsulating SDL window management and game loop
 - Implement map with scrolling in four direction
 - Keep player on map
 - Sprite changing frames while moving
-- Pass input to player using observer
+- Subscribe the Player and Game to the Input Observable
 
 - Each renderable item should be able to render itself
 */
@@ -91,36 +97,15 @@ pub fn main() {
     canvas.clear();
     canvas.present();
 
-    // event pump is queried to find out if there are any pending events
-    let mut event_pump = sdl_context.event_pump().unwrap();
+    let mut input = Input::new(sdl_context.event_pump().unwrap());
 
     'running: loop {
         canvas.set_draw_color(bg_color);
         canvas.clear();
         // handle events
-        for event in event_pump.poll_iter() {
-            println!("{:?}", event);
-            match event {
-                Event::Quit {..} |
-                Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
-                    break 'running
-                },
-                // player control
-                // todo: allow diagonal movement
-                Event::KeyDown { keycode: Some(Keycode::Left), .. } => {
-                    player.spr.movespr(-player.spr.speed, 0);
-                },
-                Event::KeyDown { keycode: Some(Keycode::Right), .. } => {
-                    player.spr.movespr(player.spr.speed, 0);
-                },
-                Event::KeyDown { keycode: Some(Keycode::Up), .. } => {
-                    player.spr.movespr(0, -player.spr.speed);
-                },
-                Event::KeyDown { keycode: Some(Keycode::Down), .. } => {
-                    player.spr.movespr(0, player.spr.speed);
-                },
-                _ => {}
-            }
+        let stop_signal = input.poll_input();
+        if (stop_signal) {
+            break 'running;
         }
         // The rest of the game loop goes here...
 
