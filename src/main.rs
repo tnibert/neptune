@@ -9,17 +9,67 @@ mod input;
 use crate::player::Player;
 use crate::input::Input;
 
-use sdl2::render::{Canvas, WindowCanvas, Texture};
+/*use winit::{
+    event::{Event, WindowEvent},
+    event_loop::{ControlFlow, EventLoop},
+    window::WindowBuilder,
+};*/
+
+/*use sdl2::Sdl;
+use sdl2::render::{Canvas, WindowCanvas, Texture, TextureCreator, RenderTarget};
 use sdl2::rect::{Point, Rect};
 //use sdl2::Sdl;
 //use sdl2::video::Window;
 //use sdl2::video::WindowContext;
 use sdl2::pixels::Color;
-use sdl2::image::{InitFlag, LoadTexture};
+use sdl2::image::{InitFlag, LoadTexture};*/
 use std::path::Path;
 use std::{thread, time::Duration};
 
 use std::cell::RefCell;
+
+extern crate piston_window;
+extern crate find_folder;
+
+use piston_window::*;
+
+/// Emulated screen width in pixels
+const SCREEN_WIDTH: usize = 256*2;
+/// Emulated screen height in pixels
+const SCREEN_HEIGHT: usize = 240*2;
+/// Screen texture size in bytes
+const SCREEN_SIZE: usize = SCREEN_WIDTH * SCREEN_HEIGHT * 3;
+
+const SCALE: usize = 1;
+
+fn main() {
+    let opengl = OpenGL::V3_2;
+    let mut window: PistonWindow =
+        WindowSettings::new("piston: image", [300, 300])
+        .exit_on_esc(true)
+        .graphics_api(opengl)
+        .build()
+        .unwrap();
+
+    let assets = find_folder::Search::Parents(3).for_folder("assets").unwrap();
+    //let assets = find_folder::Search::ParentsThenKids(3, 3)
+        //.for_folder("assets").unwrap();
+    let rust_logo = assets.join("reaper.png");
+    println!("{:?}", rust_logo);
+    let rust_logo: G2dTexture = Texture::from_path(
+            &mut window.create_texture_context(),
+            &rust_logo,
+            Flip::None,
+            &TextureSettings::new()
+        ).unwrap();
+    window.set_lazy(true);
+    while let Some(e) = window.next() {
+        window.draw_2d(&e, |c, g, _| {
+            clear([1.0; 4], g);
+            image(&rust_logo, c.transform, g);
+        });
+    }
+}
 
 /*
 Looking to create a town that the character can move through
@@ -35,16 +85,7 @@ A few items outstanding:
 - Each renderable item should be able to render itself
 */
 
-/// Emulated screen width in pixels
-const SCREEN_WIDTH: usize = 256*2;
-/// Emulated screen height in pixels
-const SCREEN_HEIGHT: usize = 240*2;
-/// Screen texture size in bytes
-const SCREEN_SIZE: usize = SCREEN_WIDTH * SCREEN_HEIGHT * 3;
-
-const SCALE: usize = 1;
-
-fn render(
+/*fn render(
     canvas: &mut WindowCanvas,
     color: Color,
     player: &Player,
@@ -66,9 +107,27 @@ fn render(
     canvas.present();
 
     Ok(())
-}
+}*/
 
-pub fn main() {
+// winit
+/*fn main() {
+    let event_loop = EventLoop::new();
+    let window = WindowBuilder::new().build(&event_loop).unwrap();
+
+    event_loop.run(move |event, _, control_flow| {
+        *control_flow = ControlFlow::Wait;
+
+        match event {
+            Event::WindowEvent {
+                event: WindowEvent::CloseRequested,
+                window_id,
+            } if window_id == window.id() => *control_flow = ControlFlow::Exit,
+            _ => (),
+        }
+    });
+}*/
+
+/*pub fn main() {
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
     // why can't I use ? instead of unwrap()?
@@ -86,11 +145,18 @@ pub fn main() {
         .software()
         .build()
         .map_err(|e| e.to_string()).unwrap();
- 
+
+    // sdl makes texture creator the owner of every texture
     let texture_creator = canvas.texture_creator();
+
+    run(&texture_creator, &canvas, &sdl_context);
+}*/
+
+/*pub fn run(/*texture_creator: &TextureCreator<dyn RenderTarget>, 
+            canvas: &Canvas<dyn RenderTarget>, sdl_context: &Sdl*/) {
     let ss = texture_creator.load_texture(Path::new("assets/reaper.png")).unwrap();
 
-    let mut player = Player::new(ss);
+    let player = RefCell::new(Player::new(&ss));
 
     let bg_color = Color::RGB(255, 255, 255);
     canvas.set_draw_color(bg_color);
@@ -98,24 +164,28 @@ pub fn main() {
     canvas.present();
 
     let mut input = Input::new(sdl_context.event_pump().unwrap());
+    input.observable.subscribe("up".to_string(), &player);
+    input.observable.subscribe("down".to_string(), &player);
+    input.observable.subscribe("left".to_string(), &player);
+    input.observable.subscribe("right".to_string(), &player);
 
     'running: loop {
         canvas.set_draw_color(bg_color);
         canvas.clear();
         // handle events
         let stop_signal = input.poll_input();
-        if (stop_signal) {
+        if stop_signal {
             break 'running;
         }
         // The rest of the game loop goes here...
 
         // blit
-        render(&mut canvas, bg_color, &player);
+        render(&mut canvas, bg_color, &player.borrow());
 
         // todo: use monotonic clock to find exact time for sleep
         thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
     }
-}
+}*/
 
 // some notes:
 //
