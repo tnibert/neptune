@@ -1,4 +1,6 @@
 use crate::sprite::Sprite;
+use crate::observer::Observer;
+use crate::observer::Event;
 
 use sdl2::render::Texture;
 
@@ -8,15 +10,27 @@ const PLAYER_SPEED: i32 = 5;
 
 // handles player, received input
 //#[derive(Debug)]
-pub struct Player<'a> {
+pub struct Player {
     // todo: make not pub
-    pub spr: Sprite<'a>
+    pub spr: Sprite
 }
 
-impl <'a> Player<'a> {
-    pub fn new(spritesheet: Texture<'a>) -> Player {
+impl Player {
+    pub fn new(spritesheet: &'static Texture) -> Player{
         Self {
             spr: Sprite::new(PLAYER_W, PLAYER_H, PLAYER_SPEED, spritesheet)
+        }
+    }
+}
+
+impl Observer for Player {
+    fn receive(&mut self, e: &Event) {
+        match e.name.as_str() {
+            "up" => self.spr.movespr(0, -self.spr.speed),
+            "down" => self.spr.movespr(0, self.spr.speed),
+            "left" => self.spr.movespr(-self.spr.speed, 0),
+            "right" => self.spr.movespr(self.spr.speed, 0),
+            _ => ()
         }
     }
 }
