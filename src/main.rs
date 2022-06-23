@@ -1,28 +1,13 @@
-extern crate sdl2;
-
-mod observer;
+//mod observer;
 mod sprite;
-mod player;
-mod input;
+//mod player;
+//mod input;
 
 //use crate::observer;
 //use crate::player::Player;
 //use crate::input::Input;
+use crate::sprite::Sprite;
 
-/*use winit::{
-    event::{Event, WindowEvent},
-    event_loop::{ControlFlow, EventLoop},
-    window::WindowBuilder,
-};*/
-
-/*use sdl2::Sdl;
-use sdl2::render::{Canvas, WindowCanvas, Texture, TextureCreator, RenderTarget};
-use sdl2::rect::{Point, Rect};
-//use sdl2::Sdl;
-//use sdl2::video::Window;
-//use sdl2::video::WindowContext;
-use sdl2::pixels::Color;
-use sdl2::image::{InitFlag, LoadTexture};*/
 use std::path::Path;
 use std::{thread, time::Duration};
 
@@ -51,6 +36,8 @@ const SCREEN_HEIGHT: usize = 240*2;
 /// Screen texture size in bytes
 const SCREEN_SIZE: usize = SCREEN_WIDTH * SCREEN_HEIGHT * 3;
 
+const SPEED: f64 = 2.0;
+
 const SCALE: usize = 1;
 
 // omfg this person is a saint:
@@ -58,46 +45,44 @@ const SCALE: usize = 1;
 
 pub struct ColoredRect {
     pub color: [f32; 4],
-    pub position: [f64; 4],
-    velocity: [f64; 2]
+    //pub position: [f64; 4],
+    pub sprite: Sprite
 }
 
 impl ColoredRect {
     pub fn new() -> Self {
         ColoredRect {
             color: [1.0, 1.0, 1.0, 1.0],
-            position: [0.0, 0.0, 100.0, 100.0],
-            velocity: [0.3, 0.3]
+            //position: [0.0, 0.0, 100.0, 100.0],
+            sprite: Sprite::new()
         }
     }
+
     pub fn update(&mut self, dt: f64, size: (f64, f64)) {
         self.color[0] = Self::update_color(dt as f32, self.color[0], 0.001);
         self.color[1] = Self::update_color(dt as f32, self.color[1], 0.002);
         self.color[2] = Self::update_color(dt as f32, self.color[2], 0.003);
         // X updates
-        if self.position[0] + self.position[2] >= size.0 ||
+        /*if self.position[0] + self.position[2] >= size.0 ||
             self.position[0] < 0.0 {
             self.velocity[0] = -self.velocity[0];
-        }
-        self.position[0] += self.velocity[0] * dt * 120.0;
+        }*/
+        //self.position[0] += self.velocity[0] * dt * 120.0;
 
         // Y updates
-        if self.position[1] + self.position[3] >= size.1 || 
+        /*if self.position[1] + self.position[3] >= size.1 || 
             self.position[1] < 0.0 {
             self.velocity[1] = -self.velocity[1];
-        } 
-        self.position[1] += self.velocity[1] * dt * 120.0;
+        }*/
+        //self.position[1] += self.velocity[1] * dt * 120.0;
     }
+
     fn update_color(dt: f32, color: f32, change: f32)->f32 {
         if color <= 0.0 {
             1.0
         } else {
             color - change * dt * 120.0
         }
-    }
-    pub fn change_velocity(&mut self, factor: f64) {
-        self.velocity[0] *= factor;
-        self.velocity[1] *= factor;
     }
 }
 
@@ -119,7 +104,7 @@ fn main() {
             window.draw_2d(&e, |c, g, _| {
                 clear([1.0; 4], g); // Clear to white
                 rectangle(rect.color, // Color
-                          rect.position, // Position/size
+                          rect.sprite.position, // Position/size
                           c.transform, g);
                 /*fpsfont.draw(&format!("{:.0} FPS", fpscounter.rate()), 
                     &mut glyphs, &c.draw_state,
@@ -136,49 +121,23 @@ fn main() {
         // input handling
         if let Some(Button::Keyboard(k)) = e.press_args() {
             match k {
-                Key::W => {
-                    rect.change_velocity(1.1);
+                Key::Right => {
+                    rect.sprite.movespr(SPEED, 0.0);
                 },
-                Key::S => {
-                    rect.change_velocity(0.9);
+                Key::Left => {
+                    rect.sprite.movespr(-SPEED, 0.0);
                 },
-                Key::F5 => {
-                    rect = ColoredRect::new();
+                Key::Down => {
+                    rect.sprite.movespr(0.0, SPEED);
                 },
+                Key::Up => {
+                    rect.sprite.movespr(0.0, -SPEED);
+                }
                 _ => {}, // Catch all keys
             }
         }
     }
 }
-
-/*fn main() {
-    // Change this to OpenGL::V2_1 if not working.
-    let opengl = OpenGL::V3_2;
-
-    // Create a Glutin window.
-    let mut window: Window = WindowSettings::new("spinning-square", [200, 200])
-        .graphics_api(opengl)
-        .exit_on_esc(true)
-        .build()
-        .unwrap();
-
-    // Create a new game and run it.
-    let mut app = App {
-        gl: GlGraphics::new(opengl),
-        rotation: 0.0,
-    };
-
-    let mut events = Events::new(EventSettings::new());
-    while let Some(e) = events.next(&mut window) {
-        if let Some(args) = e.render_args() {
-            app.render(&args);
-        }
-
-        if let Some(args) = e.update_args() {
-            app.update(&args);
-        }
-    }
-}*/
 
 /*fn main() {
     let opengl = OpenGL::V3_2;
@@ -228,23 +187,7 @@ A few items outstanding:
 - Each renderable item should be able to render itself
 */
 
-// winit
-/*fn main() {
-    let event_loop = EventLoop::new();
-    let window = WindowBuilder::new().build(&event_loop).unwrap();
 
-    event_loop.run(move |event, _, control_flow| {
-        *control_flow = ControlFlow::Wait;
-
-        match event {
-            Event::WindowEvent {
-                event: WindowEvent::CloseRequested,
-                window_id,
-            } if window_id == window.id() => *control_flow = ControlFlow::Exit,
-            _ => (),
-        }
-    });
-}*/
 
 /*pub fn main() {
     let sdl_context = sdl2::init().unwrap();

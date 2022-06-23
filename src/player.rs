@@ -2,7 +2,7 @@ use crate::sprite::Sprite;
 use crate::observer::Observer;
 use crate::observer::Event;
 
-use sdl2::render::Texture;
+use std::cell::RefCell;
 
 const PLAYER_W: u32 = 26;
 const PLAYER_H: u32 = 36;
@@ -16,9 +16,9 @@ pub struct Player {
 }
 
 impl Player {
-    pub fn new(spritesheet: &'static Texture) -> Player{
+    pub fn new() -> Player{
         Self {
-            spr: Sprite::new(PLAYER_W, PLAYER_H, PLAYER_SPEED, spritesheet)
+            spr: Sprite::new(PLAYER_W, PLAYER_H, PLAYER_SPEED)
         }
     }
 }
