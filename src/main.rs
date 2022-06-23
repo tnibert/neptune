@@ -1,5 +1,6 @@
 //mod observer;
 mod sprite;
+mod coloredrect;
 //mod player;
 //mod input;
 
@@ -7,6 +8,7 @@ mod sprite;
 //use crate::player::Player;
 //use crate::input::Input;
 use crate::sprite::Sprite;
+use crate::coloredrect::ColoredRect;
 
 use std::path::Path;
 use std::{thread, time::Duration};
@@ -14,7 +16,6 @@ use std::{thread, time::Duration};
 use std::cell::RefCell;
 
 extern crate piston_window;
-extern crate find_folder;
 
 use piston_window::*;
 
@@ -30,66 +31,20 @@ use piston::input::{RenderArgs, RenderEvent, UpdateArgs, UpdateEvent};
 use piston::window::WindowSettings;
 
 /// Emulated screen width in pixels
-const SCREEN_WIDTH: usize = 256*2;
+const SCREEN_WIDTH: u32 = 256*2;
 /// Emulated screen height in pixels
-const SCREEN_HEIGHT: usize = 240*2;
+const SCREEN_HEIGHT: u32 = 240*2;
 /// Screen texture size in bytes
-const SCREEN_SIZE: usize = SCREEN_WIDTH * SCREEN_HEIGHT * 3;
+//const SCREEN_SIZE: usize = SCREEN_WIDTH * SCREEN_HEIGHT * 3;
 
 const SPEED: f64 = 2.0;
 
 const SCALE: usize = 1;
 
-// omfg this person is a saint:
-// https://nora.codes/tutorial/piston-a-game-library-in-rust/
-
-pub struct ColoredRect {
-    pub color: [f32; 4],
-    //pub position: [f64; 4],
-    pub sprite: Sprite
-}
-
-impl ColoredRect {
-    pub fn new() -> Self {
-        ColoredRect {
-            color: [1.0, 1.0, 1.0, 1.0],
-            //position: [0.0, 0.0, 100.0, 100.0],
-            sprite: Sprite::new()
-        }
-    }
-
-    pub fn update(&mut self, dt: f64, size: (f64, f64)) {
-        self.color[0] = Self::update_color(dt as f32, self.color[0], 0.001);
-        self.color[1] = Self::update_color(dt as f32, self.color[1], 0.002);
-        self.color[2] = Self::update_color(dt as f32, self.color[2], 0.003);
-        // X updates
-        /*if self.position[0] + self.position[2] >= size.0 ||
-            self.position[0] < 0.0 {
-            self.velocity[0] = -self.velocity[0];
-        }*/
-        //self.position[0] += self.velocity[0] * dt * 120.0;
-
-        // Y updates
-        /*if self.position[1] + self.position[3] >= size.1 || 
-            self.position[1] < 0.0 {
-            self.velocity[1] = -self.velocity[1];
-        }*/
-        //self.position[1] += self.velocity[1] * dt * 120.0;
-    }
-
-    fn update_color(dt: f32, color: f32, change: f32)->f32 {
-        if color <= 0.0 {
-            1.0
-        } else {
-            color - change * dt * 120.0
-        }
-    }
-}
-
 fn main() {
     let mut rect = ColoredRect::new();
     let mut window: PistonWindow =
-        WindowSettings::new("Prototype", [640, 480])
+        WindowSettings::new("Prototype", [SCREEN_WIDTH, SCREEN_HEIGHT])
         .exit_on_esc(true)
         .vsync(true)
         .build().unwrap();
@@ -139,6 +94,7 @@ fn main() {
     }
 }
 
+// reference for blitting image
 /*fn main() {
     let opengl = OpenGL::V3_2;
     let mut window: PistonWindow =
@@ -187,33 +143,7 @@ A few items outstanding:
 - Each renderable item should be able to render itself
 */
 
-
-
-/*pub fn main() {
-    let sdl_context = sdl2::init().unwrap();
-    let video_subsystem = sdl_context.video().unwrap();
-    // why can't I use ? instead of unwrap()?
-    let _image_context = sdl2::image::init(InitFlag::PNG | InitFlag::JPG).unwrap();
- 
-    let window = video_subsystem.window("Prototype",
-                                        (SCREEN_WIDTH as usize * SCALE) as u32,
-                                        (SCREEN_HEIGHT as usize * SCALE) as u32)
-        .position_centered()
-        .build()
-        .map_err(|e| e.to_string()).unwrap();
- 
-    let mut canvas = window
-        .into_canvas()
-        .software()
-        .build()
-        .map_err(|e| e.to_string()).unwrap();
-
-    // sdl makes texture creator the owner of every texture
-    let texture_creator = canvas.texture_creator();
-
-    run(&texture_creator, &canvas, &sdl_context);
-}*/
-
+// deprecated SDL
 /*pub fn run(/*texture_creator: &TextureCreator<dyn RenderTarget>, 
             canvas: &Canvas<dyn RenderTarget>, sdl_context: &Sdl*/) {
     let ss = texture_creator.load_texture(Path::new("assets/reaper.png")).unwrap();
