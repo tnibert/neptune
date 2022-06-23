@@ -6,8 +6,8 @@ mod player;
 mod input;
 
 //use crate::observer;
-use crate::player::Player;
-use crate::input::Input;
+//use crate::player::Player;
+//use crate::input::Input;
 
 /*use winit::{
     event::{Event, WindowEvent},
@@ -33,6 +33,17 @@ extern crate find_folder;
 
 use piston_window::*;
 
+extern crate glutin_window;
+extern crate graphics;
+extern crate opengl_graphics;
+extern crate piston;
+
+use glutin_window::GlutinWindow as Window;
+use opengl_graphics::{GlGraphics, OpenGL};
+use piston::event_loop::{EventSettings, Events};
+use piston::input::{RenderArgs, RenderEvent, UpdateArgs, UpdateEvent};
+use piston::window::WindowSettings;
+
 /// Emulated screen width in pixels
 const SCREEN_WIDTH: usize = 256*2;
 /// Emulated screen height in pixels
@@ -42,7 +53,134 @@ const SCREEN_SIZE: usize = SCREEN_WIDTH * SCREEN_HEIGHT * 3;
 
 const SCALE: usize = 1;
 
+// omfg this person is a saint:
+// https://nora.codes/tutorial/piston-a-game-library-in-rust/
+
+pub struct ColoredRect {
+    pub color: [f32; 4],
+    pub position: [f64; 4],
+    velocity: [f64; 2]
+}
+
+impl ColoredRect {
+    pub fn new() -> Self {
+        ColoredRect {
+            color: [1.0, 1.0, 1.0, 1.0],
+            position: [0.0, 0.0, 100.0, 100.0],
+            velocity: [0.3, 0.3]
+        }
+    }
+    pub fn update(&mut self, dt: f64, size: (f64, f64)) {
+        self.color[0] = Self::update_color(dt as f32, self.color[0], 0.001);
+        self.color[1] = Self::update_color(dt as f32, self.color[1], 0.002);
+        self.color[2] = Self::update_color(dt as f32, self.color[2], 0.003);
+        // X updates
+        if self.position[0] + self.position[2] >= size.0 ||
+            self.position[0] < 0.0 {
+            self.velocity[0] = -self.velocity[0];
+        }
+        self.position[0] += self.velocity[0] * dt * 120.0;
+
+        // Y updates
+        if self.position[1] + self.position[3] >= size.1 || 
+            self.position[1] < 0.0 {
+            self.velocity[1] = -self.velocity[1];
+        } 
+        self.position[1] += self.velocity[1] * dt * 120.0;
+    }
+    fn update_color(dt: f32, color: f32, change: f32)->f32 {
+        if color <= 0.0 {
+            1.0
+        } else {
+            color - change * dt * 120.0
+        }
+    }
+    pub fn change_velocity(&mut self, factor: f64) {
+        self.velocity[0] *= factor;
+        self.velocity[1] *= factor;
+    }
+}
+
 fn main() {
+    let mut rect = ColoredRect::new();
+    let mut window: PistonWindow =
+        WindowSettings::new("Prototype", [640, 480])
+        .exit_on_esc(true)
+        .vsync(true)
+        .build().unwrap();
+
+    let mut window_size: (f64, f64) = (0.0, 0.0);
+
+    let mut events = Events::new(EventSettings::new());
+    while let Some(e) = events.next(&mut window) {
+        // rendering
+        if let Some(r) = e.render_args() {
+            window_size = (r.window_size[0] as f64, r.window_size[1] as f64);
+            window.draw_2d(&e, |c, g, _| {
+                clear([1.0; 4], g); // Clear to white
+                rectangle(rect.color, // Color
+                          rect.position, // Position/size
+                          c.transform, g);
+                /*fpsfont.draw(&format!("{:.0} FPS", fpscounter.rate()), 
+                    &mut glyphs, &c.draw_state,
+                    c.transform.trans(10.0, 12.0), // Set the position of the drawing
+                    g).unwrap();*/
+            });
+        }
+
+        // game state update
+        if let Some(u) = e.update_args() {
+            rect.update(u.dt, window_size);
+        }
+
+        // input handling
+        if let Some(Button::Keyboard(k)) = e.press_args() {
+            match k {
+                Key::W => {
+                    rect.change_velocity(1.1);
+                },
+                Key::S => {
+                    rect.change_velocity(0.9);
+                },
+                Key::F5 => {
+                    rect = ColoredRect::new();
+                },
+                _ => {}, // Catch all keys
+            }
+        }
+    }
+}
+
+/*fn main() {
+    // Change this to OpenGL::V2_1 if not working.
+    let opengl = OpenGL::V3_2;
+
+    // Create a Glutin window.
+    let mut window: Window = WindowSettings::new("spinning-square", [200, 200])
+        .graphics_api(opengl)
+        .exit_on_esc(true)
+        .build()
+        .unwrap();
+
+    // Create a new game and run it.
+    let mut app = App {
+        gl: GlGraphics::new(opengl),
+        rotation: 0.0,
+    };
+
+    let mut events = Events::new(EventSettings::new());
+    while let Some(e) = events.next(&mut window) {
+        if let Some(args) = e.render_args() {
+            app.render(&args);
+        }
+
+        if let Some(args) = e.update_args() {
+            app.update(&args);
+        }
+    }
+}*/
+
+/*fn main() {
     let opengl = OpenGL::V3_2;
     let mut window: PistonWindow =
         WindowSettings::new("piston: image", [300, 300])
@@ -51,25 +189,30 @@ fn main() {
         .build()
         .unwrap();
 
+    window.set_lazy(true);
+    //let window_ref = RefCell::new(window);
+
     let assets = find_folder::Search::Parents(3).for_folder("assets").unwrap();
     //let assets = find_folder::Search::ParentsThenKids(3, 3)
         //.for_folder("assets").unwrap();
-    let rust_logo = assets.join("reaper.png");
-    println!("{:?}", rust_logo);
-    let rust_logo: G2dTexture = Texture::from_path(
+    let ss = assets.join("reaper.png");
+    println!("{:?}", ss);
+    let ss: G2dTexture = Texture::from_path(
             &mut window.create_texture_context(),
-            &rust_logo,
+            &ss,
             Flip::None,
             &TextureSettings::new()
         ).unwrap();
-    window.set_lazy(true);
+
+    let player = RefCell::new(Player::new());
+
     while let Some(e) = window.next() {
         window.draw_2d(&e, |c, g, _| {
             clear([1.0; 4], g);
-            image(&rust_logo, c.transform, g);
+            image(&ss, c.transform, g);
         });
     }
-}
+}*/
 
 /*
 Looking to create a town that the character can move through
@@ -84,30 +227,6 @@ A few items outstanding:
 
 - Each renderable item should be able to render itself
 */
-
-/*fn render(
-    canvas: &mut WindowCanvas,
-    color: Color,
-    player: &Player,
-) -> Result<(), String> {
-    canvas.set_draw_color(color);
-    canvas.clear();
-
-    // get size of window
-    let (width, height) = canvas.output_size()?;
-
-    // world coordinate system
-    // Treat the center of the screen as the (0, 0) coordinate
-    let screen_position = player.spr.position + Point::new(width as i32 / 2, height as i32 / 2);
-    let screen_rect = Rect::from_center(screen_position, player.spr.area.width(), player.spr.area.height());
-
-    // why is spritesheet borrowed but area not?
-    canvas.copy(&player.spr.spritesheet, player.spr.area, screen_rect)?;
-
-    canvas.present();
-
-    Ok(())
-}*/
 
 // winit
 /*fn main() {
