@@ -47,18 +47,9 @@ fn load_image_asset(fname: &str, texture_context: &mut piston_window::G2dTexture
 fn load_image_asset_buffer(fname: &str) -> im::ImageBuffer<im::Rgba<u8>,Vec<u8>> {
     let assets = find_folder::Search::Parents(3).for_folder("assets").unwrap();
     let img_path = assets.join(fname);
-    let on_top = im::open(img_path).unwrap().into_rgba8();
-    let mut img = im::ImageBuffer::from_fn(512, 512, |x, y| {
-        if (x + y) % 2 == 0 {
-            im::Rgba([0, 0, 0, 0])
-        } else {
-            im::Rgba([255, 255, 255, 0])
-        }
-    });
-
-    im::imageops::overlay(&mut img, &on_top, 128, 128);
-    //let cropped = im::imageops::crop(&mut img, 0, 0, 30, 40);
-    //return cropped.to_image();
+    let mut img = im::open(img_path).unwrap().into_rgba8();
+    let img = im::imageops::crop(&mut img, 0, 0, 30, 40).to_image();
+    //im::imageops::overlay(&mut img, &on_top, 128, 128);
     return img;
 }
 
