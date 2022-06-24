@@ -35,8 +35,8 @@ const SPEED: f64 = 5.0;
 
 //const SCALE: usize = 1;
 
-fn load_image_asset(texture_context: &mut piston_window::G2dTextureContext) -> piston_window::G2dTexture {
-    let img = load_image_asset_buffer();
+fn load_image_asset(fname: &str, texture_context: &mut piston_window::G2dTextureContext) -> piston_window::G2dTexture {
+    let img = load_image_asset_buffer(fname);
     return piston_window::Texture::from_image(
             texture_context,
             &img,
@@ -44,10 +44,10 @@ fn load_image_asset(texture_context: &mut piston_window::G2dTextureContext) -> p
         ).unwrap();
 }
 
-fn load_image_asset_buffer() -> im::ImageBuffer<im::Rgba<u8>,Vec<u8>> {
+fn load_image_asset_buffer(fname: &str) -> im::ImageBuffer<im::Rgba<u8>,Vec<u8>> {
     let assets = find_folder::Search::Parents(3).for_folder("assets").unwrap();
-    let ss = assets.join("reaper.png");
-    let on_top = im::open(ss).unwrap().into_rgba8();
+    let img_path = assets.join(fname);
+    let on_top = im::open(img_path).unwrap().into_rgba8();
     let mut img = im::ImageBuffer::from_fn(512, 512, |x, y| {
         if (x + y) % 2 == 0 {
             im::Rgba([0, 0, 0, 0])
@@ -71,7 +71,7 @@ fn main() {
         .build().unwrap();
 
     let mut window_size: (f64, f64) = (0.0, 0.0);
-    let ss = load_image_asset(&mut window.create_texture_context());
+    let ss = load_image_asset("reaper.png", &mut window.create_texture_context());
 
     let mut events = piston_window::Events::new(piston_window::EventSettings::new());
     while let Some(e) = events.next(&mut window) {
