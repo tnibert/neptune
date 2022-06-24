@@ -7,28 +7,22 @@ mod coloredrect;
 //use crate::observer;
 //use crate::player::Player;
 //use crate::input::Input;
-use crate::sprite::Sprite;
+//use crate::sprite::Sprite;
 use crate::coloredrect::ColoredRect;
 
-use std::path::Path;
-use std::{thread, time::Duration};
+//use std::path::Path;
+//use std::{thread, time::Duration};
 
-use std::cell::RefCell;
+//use std::cell::RefCell;
 
 extern crate piston_window;
+use crate::piston_window::PressEvent;
+use crate::piston_window::Transformed;
+use crate::piston_window::RenderEvent;
+use crate::piston_window::UpdateEvent;
+use piston_window::WindowSettings;
 
-use piston_window::*;
-
-extern crate glutin_window;
-extern crate graphics;
-extern crate opengl_graphics;
-extern crate piston;
-
-use glutin_window::GlutinWindow as Window;
-use opengl_graphics::{GlGraphics, OpenGL};
-use piston::event_loop::{EventSettings, Events};
-use piston::input::{RenderArgs, RenderEvent, UpdateArgs, UpdateEvent};
-use piston::window::WindowSettings;
+extern crate image as im;
 
 /// Emulated screen width in pixels
 const SCREEN_WIDTH: u32 = 256*2;
@@ -37,34 +31,65 @@ const SCREEN_HEIGHT: u32 = 240*2;
 /// Screen texture size in bytes
 //const SCREEN_SIZE: usize = SCREEN_WIDTH * SCREEN_HEIGHT * 3;
 
-const SPEED: f64 = 2.0;
+const SPEED: f64 = 5.0;
 
-const SCALE: usize = 1;
+//const SCALE: usize = 1;
+
+fn load_image_asset(texture_context: &mut piston_window::G2dTextureContext) -> piston_window::G2dTexture {
+    let img = load_image_asset_buffer();
+    return piston_window::Texture::from_image(
+            texture_context,
+            &img,
+            &piston_window::TextureSettings::new()
+        ).unwrap();
+}
+
+fn load_image_asset_buffer() -> im::ImageBuffer<im::Rgba<u8>,Vec<u8>> {
+    let assets = find_folder::Search::Parents(3).for_folder("assets").unwrap();
+    let ss = assets.join("reaper.png");
+    let on_top = im::open(ss).unwrap().into_rgba8();
+    let mut img = im::ImageBuffer::from_fn(512, 512, |x, y| {
+        if (x + y) % 2 == 0 {
+            im::Rgba([0, 0, 0, 0])
+        } else {
+            im::Rgba([255, 255, 255, 0])
+        }
+    });
+
+    im::imageops::overlay(&mut img, &on_top, 128, 128);
+    //let cropped = im::imageops::crop(&mut img, 0, 0, 30, 40);
+    //return cropped.to_image();
+    return img;
+}
 
 fn main() {
     let mut rect = ColoredRect::new();
-    let mut window: PistonWindow =
+    let mut window: piston_window::PistonWindow =
         WindowSettings::new("Prototype", [SCREEN_WIDTH, SCREEN_HEIGHT])
         .exit_on_esc(true)
         .vsync(true)
         .build().unwrap();
 
     let mut window_size: (f64, f64) = (0.0, 0.0);
+    let ss = load_image_asset(&mut window.create_texture_context());
 
-    let mut events = Events::new(EventSettings::new());
+    let mut events = piston_window::Events::new(piston_window::EventSettings::new());
     while let Some(e) = events.next(&mut window) {
         // rendering
         if let Some(r) = e.render_args() {
             window_size = (r.window_size[0] as f64, r.window_size[1] as f64);
             window.draw_2d(&e, |c, g, _| {
-                clear([1.0; 4], g); // Clear to white
-                rectangle(rect.color, // Color
+                let transform = c.transform.trans(rect.sprite.position[0], rect.sprite.position[1]);
+
+                piston_window::clear([1.0; 4], g); // Clear to white
+                /*rectangle(rect.color, // Color
                           rect.sprite.position, // Position/size
-                          c.transform, g);
+                          c.transform, g);*/
                 /*fpsfont.draw(&format!("{:.0} FPS", fpscounter.rate()), 
                     &mut glyphs, &c.draw_state,
                     c.transform.trans(10.0, 12.0), // Set the position of the drawing
                     g).unwrap();*/
+                piston_window::image(&ss, transform, g);
             });
         }
 
@@ -74,18 +99,18 @@ fn main() {
         }
 
         // input handling
-        if let Some(Button::Keyboard(k)) = e.press_args() {
+        if let Some(piston_window::Button::Keyboard(k)) = e.press_args() {
             match k {
-                Key::Right => {
+                piston_window::Key::Right => {
                     rect.sprite.movespr(SPEED, 0.0);
                 },
-                Key::Left => {
+                piston_window::Key::Left => {
                     rect.sprite.movespr(-SPEED, 0.0);
                 },
-                Key::Down => {
+                piston_window::Key::Down => {
                     rect.sprite.movespr(0.0, SPEED);
                 },
-                Key::Up => {
+                piston_window::Key::Up => {
                     rect.sprite.movespr(0.0, -SPEED);
                 }
                 _ => {}, // Catch all keys
@@ -93,41 +118,6 @@ fn main() {
         }
     }
 }
-
-// reference for blitting image
-/*fn main() {
-    let opengl = OpenGL::V3_2;
-    let mut window: PistonWindow =
-        WindowSettings::new("piston: image", [300, 300])
-        .exit_on_esc(true)
-        .graphics_api(opengl)
-        .build()
-        .unwrap();
-
-    window.set_lazy(true);
-    //let window_ref = RefCell::new(window);
-
-    let assets = find_folder::Search::Parents(3).for_folder("assets").unwrap();
-    //let assets = find_folder::Search::ParentsThenKids(3, 3)
-        //.for_folder("assets").unwrap();
-    let ss = assets.join("reaper.png");
-    println!("{:?}", ss);
-    let ss: G2dTexture = Texture::from_path(
-            &mut window.create_texture_context(),
-            &ss,
-            Flip::None,
-            &TextureSettings::new()
-        ).unwrap();
-
-    let player = RefCell::new(Player::new());
-
-    while let Some(e) = window.next() {
-        window.draw_2d(&e, |c, g, _| {
-            clear([1.0; 4], g);
-            image(&ss, c.transform, g);
-        });
-    }
-}*/
 
 /*
 Looking to create a town that the character can move through

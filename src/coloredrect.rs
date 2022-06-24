@@ -18,7 +18,7 @@ impl ColoredRect {
         }
     }
 
-    pub fn update(&mut self, dt: f64, size: (f64, f64)) {
+    pub fn update(&mut self, dt: f64, _size: (f64, f64)) {
         self.color[0] = Self::update_color(dt as f32, self.color[0], 0.001);
         self.color[1] = Self::update_color(dt as f32, self.color[1], 0.002);
         self.color[2] = Self::update_color(dt as f32, self.color[2], 0.003);
