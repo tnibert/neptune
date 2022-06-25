@@ -11,6 +11,7 @@ mod graphics;
 //use crate::sprite::Sprite;
 use crate::coloredrect::ColoredRect;
 use crate::graphics::{convert_renderable};
+use crate::sprite::Direction;
 
 //use std::path::Path;
 //use std::{thread, time::Duration};
@@ -30,12 +31,7 @@ extern crate image as im;
 const SCREEN_WIDTH: u32 = 256*2;
 /// Emulated screen height in pixels
 const SCREEN_HEIGHT: u32 = 240*2;
-/// Screen texture size in bytes
-//const SCREEN_SIZE: usize = SCREEN_WIDTH * SCREEN_HEIGHT * 3;
 
-const SPEED: f64 = 5.0;
-
-//const SCALE: usize = 1;
 
 fn main() {
     let mut rect = ColoredRect::new();
@@ -75,16 +71,16 @@ fn main() {
         if let Some(piston_window::Button::Keyboard(k)) = e.press_args() {
             match k {
                 piston_window::Key::Right => {
-                    rect.sprite.movespr(SPEED, 0.0);
+                    rect.sprite.movespr(Direction::Right);
                 },
                 piston_window::Key::Left => {
-                    rect.sprite.movespr(-SPEED, 0.0);
+                    rect.sprite.movespr(Direction::Left);
                 },
                 piston_window::Key::Down => {
-                    rect.sprite.movespr(0.0, SPEED);
+                    rect.sprite.movespr(Direction::Down);
                 },
                 piston_window::Key::Up => {
-                    rect.sprite.movespr(0.0, -SPEED);
+                    rect.sprite.movespr(Direction::Up);
                 }
                 _ => {}, // Catch all keys
             }
