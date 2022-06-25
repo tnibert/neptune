@@ -1,6 +1,7 @@
 //mod observer;
 mod sprite;
 mod coloredrect;
+mod graphics;
 //mod player;
 //mod input;
 
@@ -9,6 +10,7 @@ mod coloredrect;
 //use crate::input::Input;
 //use crate::sprite::Sprite;
 use crate::coloredrect::ColoredRect;
+use crate::graphics::{convert_renderable};
 
 //use std::path::Path;
 //use std::{thread, time::Duration};
@@ -35,24 +37,6 @@ const SPEED: f64 = 5.0;
 
 //const SCALE: usize = 1;
 
-fn load_image_asset(fname: &str, texture_context: &mut piston_window::G2dTextureContext) -> piston_window::G2dTexture {
-    let img = load_image_asset_buffer(fname);
-    return piston_window::Texture::from_image(
-            texture_context,
-            &img,
-            &piston_window::TextureSettings::new()
-        ).unwrap();
-}
-
-fn load_image_asset_buffer(fname: &str) -> im::ImageBuffer<im::Rgba<u8>,Vec<u8>> {
-    let assets = find_folder::Search::Parents(3).for_folder("assets").unwrap();
-    let img_path = assets.join(fname);
-    let mut img = im::open(img_path).unwrap().into_rgba8();
-    let img = im::imageops::crop(&mut img, 0, 0, 30, 40).to_image();
-    //im::imageops::overlay(&mut img, &on_top, 128, 128);
-    return img;
-}
-
 fn main() {
     let mut rect = ColoredRect::new();
     let mut window: piston_window::PistonWindow =
@@ -61,8 +45,8 @@ fn main() {
         .vsync(true)
         .build().unwrap();
 
+    let mut texture_context = window.create_texture_context();
     let mut window_size: (f64, f64) = (0.0, 0.0);
-    let ss = load_image_asset("reaper.png", &mut window.create_texture_context());
 
     let mut events = piston_window::Events::new(piston_window::EventSettings::new());
     while let Some(e) = events.next(&mut window) {
@@ -71,11 +55,9 @@ fn main() {
             window_size = (r.window_size[0] as f64, r.window_size[1] as f64);
             window.draw_2d(&e, |c, g, _| {
                 let transform = c.transform.trans(rect.sprite.position[0], rect.sprite.position[1]);
+                let ss = convert_renderable(&rect.sprite.current_frame(), &mut texture_context);
 
                 piston_window::clear([1.0; 4], g); // Clear to white
-                /*rectangle(rect.color, // Color
-                          rect.sprite.position, // Position/size
-                          c.transform, g);*/
                 /*fpsfont.draw(&format!("{:.0} FPS", fpscounter.rate()), 
                     &mut glyphs, &c.draw_state,
                     c.transform.trans(10.0, 12.0), // Set the position of the drawing
