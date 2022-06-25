@@ -1,15 +1,12 @@
-//mod observer;
+mod observer;
 mod sprite;
-mod coloredrect;
 mod graphics;
-//mod player;
+mod player;
 //mod input;
 
 //use crate::observer;
-//use crate::player::Player;
+use crate::player::Player;
 //use crate::input::Input;
-//use crate::sprite::Sprite;
-use crate::coloredrect::ColoredRect;
 use crate::graphics::{convert_renderable};
 use crate::sprite::Direction;
 
@@ -32,9 +29,22 @@ const SCREEN_WIDTH: u32 = 256*2;
 /// Emulated screen height in pixels
 const SCREEN_HEIGHT: u32 = 240*2;
 
+/*
+Looking to create a town that the character can move through
+and interact with.
+
+A few items outstanding:
+- Create Game struct encapsulating SDL window management and game loop
+- Implement map with scrolling in four direction
+- Keep player on map
+- Subscribe the Player and Game to the Input Observable
+
+- Each renderable item should be able to render itself
+- Renderable items should be represented by a trait?
+*/
 
 fn main() {
-    let mut rect = ColoredRect::new();
+    let mut player = Player::new();
     let mut window: piston_window::PistonWindow =
         WindowSettings::new("Prototype", [SCREEN_WIDTH, SCREEN_HEIGHT])
         .exit_on_esc(true)
@@ -42,16 +52,16 @@ fn main() {
         .build().unwrap();
 
     let mut texture_context = window.create_texture_context();
-    let mut window_size: (f64, f64) = (0.0, 0.0);
+    //let mut window_size: (f64, f64) = (0.0, 0.0);
 
     let mut events = piston_window::Events::new(piston_window::EventSettings::new());
     while let Some(e) = events.next(&mut window) {
         // rendering
         if let Some(r) = e.render_args() {
-            window_size = (r.window_size[0] as f64, r.window_size[1] as f64);
+            //window_size = (r.window_size[0] as f64, r.window_size[1] as f64);
             window.draw_2d(&e, |c, g, _| {
-                let transform = c.transform.trans(rect.sprite.position[0], rect.sprite.position[1]);
-                let ss = convert_renderable(&rect.sprite.current_frame(), &mut texture_context);
+                let transform = c.transform.trans(player.spr.position[0], player.spr.position[1]);
+                let ss = convert_renderable(&player.spr.current_frame(), &mut texture_context);
 
                 piston_window::clear([1.0; 4], g); // Clear to white
                 /*fpsfont.draw(&format!("{:.0} FPS", fpscounter.rate()), 
@@ -64,23 +74,23 @@ fn main() {
 
         // game state update
         if let Some(u) = e.update_args() {
-            rect.update(u.dt, window_size);
+            //rect.update(u.dt, window_size);
         }
 
         // input handling
         if let Some(piston_window::Button::Keyboard(k)) = e.press_args() {
             match k {
                 piston_window::Key::Right => {
-                    rect.sprite.movespr(Direction::Right);
+                    player.spr.movespr(Direction::Right);
                 },
                 piston_window::Key::Left => {
-                    rect.sprite.movespr(Direction::Left);
+                    player.spr.movespr(Direction::Left);
                 },
                 piston_window::Key::Down => {
-                    rect.sprite.movespr(Direction::Down);
+                    player.spr.movespr(Direction::Down);
                 },
                 piston_window::Key::Up => {
-                    rect.sprite.movespr(Direction::Up);
+                    player.spr.movespr(Direction::Up);
                 }
                 _ => {}, // Catch all keys
             }
@@ -88,19 +98,6 @@ fn main() {
     }
 }
 
-/*
-Looking to create a town that the character can move through
-and interact with.
-
-A few items outstanding:
-- Create Game struct encapsulating SDL window management and game loop
-- Implement map with scrolling in four direction
-- Keep player on map
-- Sprite changing frames while moving
-- Subscribe the Player and Game to the Input Observable
-
-- Each renderable item should be able to render itself
-*/
 
 // deprecated SDL
 /*pub fn run(/*texture_creator: &TextureCreator<dyn RenderTarget>, 

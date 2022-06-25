@@ -57,14 +57,14 @@ pub struct Sprite {
 }
 
 impl Sprite {
-    pub fn new() -> Sprite {
+    pub fn new(spritesheet_fname: &str) -> Sprite {
         //let ss = load_image_asset_buffer("reaper.png");
         Self {
             position: [0.0, 0.0, 100.0, 100.0],
             frame: 0,
             //spritesheet: ss,
             // todo: pass in filename
-            frames: load_spritesheet(&load_image_asset_buffer("reaper.png")),
+            frames: load_spritesheet(&load_image_asset_buffer(spritesheet_fname)),
             direction: Direction::Down
             // src position in the spritesheet
             //area: Rect::new(0, 0, width, height),
