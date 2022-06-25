@@ -3,9 +3,9 @@ use std::cell::RefCell;
 
 
 //#[derive(Debug, PartialEq, Eq, Hash, Clone)]
-struct Event <'a> {
-    name: String,
-    source: &'a Observable <'a>
+pub struct Event <'a> {
+    pub name: String,
+    pub source: &'a Observable <'a>
 }
 
 impl <'a> Event <'a> {
@@ -17,7 +17,7 @@ impl <'a> Event <'a> {
     }
 }
 
-trait Observer {
+pub trait Observer {
     fn receive(&mut self, e: &Event);
 }
 
