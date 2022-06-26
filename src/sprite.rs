@@ -25,7 +25,7 @@ fn load_spritesheet(img: &im::RgbaImage) -> HashMap<Direction, Vec<im::RgbaImage
     let mut index = 0;
     for y in 0..SS_DOWN {
         for x in 0..SS_ACROSS {
-            println!("{}, {}", x, y);
+            //println!("{}, {}", x, y);
             let frame_x_start = x * SPRITE_FRAME_W;
             let frame_y_start = y * SPRITE_FRAME_H;
             let cropped = im::imageops::crop_imm(img, frame_x_start as u32,
@@ -90,7 +90,7 @@ impl Sprite {
             },
         }
         
-        println!("{:?}", self.position);
+        //println!("{:?}", self.position);
         self.direction = d;
 
         if self.frame < MAX_FRAME {
@@ -98,7 +98,7 @@ impl Sprite {
         } else {
             self.frame = 0;
         }
-        println!("{:?}", self.frame);
+        //println!("{:?}", self.frame);
     }
 
     pub fn current_frame(&self) -> &im::RgbaImage {
