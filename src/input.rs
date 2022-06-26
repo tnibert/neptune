@@ -1,3 +1,5 @@
+// todo: no more SDL, encapsulate piston here
+
 use sdl2::EventPump;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;

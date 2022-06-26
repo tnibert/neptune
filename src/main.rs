@@ -4,7 +4,7 @@ mod graphics;
 mod player;
 //mod input;
 
-//use crate::observer;
+use crate::observer::Observable;
 use crate::player::Player;
 //use crate::input::Input;
 use crate::graphics::{convert_renderable};
@@ -13,7 +13,7 @@ use crate::sprite::Direction;
 //use std::path::Path;
 //use std::{thread, time::Duration};
 
-//use std::cell::RefCell;
+use std::cell::RefCell;
 
 extern crate piston_window;
 use crate::piston_window::PressEvent;
@@ -44,7 +44,7 @@ A few items outstanding:
 */
 
 fn main() {
-    let mut player = Player::new();
+    let player = RefCell::new(Player::new());
     let mut window: piston_window::PistonWindow =
         WindowSettings::new("Prototype", [SCREEN_WIDTH, SCREEN_HEIGHT])
         .exit_on_esc(true)
@@ -54,14 +54,20 @@ fn main() {
     let mut texture_context = window.create_texture_context();
     //let mut window_size: (f64, f64) = (0.0, 0.0);
 
+    let mut input_sigs = Observable::new("input".to_string());
+    input_sigs.subscribe("up".to_string(), &player);
+    input_sigs.subscribe("down".to_string(), &player);
+    input_sigs.subscribe("left".to_string(), &player);
+    input_sigs.subscribe("right".to_string(), &player);
+
     let mut events = piston_window::Events::new(piston_window::EventSettings::new());
     while let Some(e) = events.next(&mut window) {
         // rendering
         if let Some(r) = e.render_args() {
             //window_size = (r.window_size[0] as f64, r.window_size[1] as f64);
             window.draw_2d(&e, |c, g, _| {
-                let transform = c.transform.trans(player.spr.position[0], player.spr.position[1]);
-                let ss = convert_renderable(&player.spr.current_frame(), &mut texture_context);
+                let transform = c.transform.trans(player.borrow().spr.position[0], player.borrow().spr.position[1]);
+                let ss = convert_renderable(&player.borrow().spr.current_frame(), &mut texture_context);
 
                 piston_window::clear([1.0; 4], g); // Clear to white
                 /*fpsfont.draw(&format!("{:.0} FPS", fpscounter.rate()), 
@@ -78,19 +84,21 @@ fn main() {
         }
 
         // input handling
+        // todo: encapsulate
+        // todo: allow movement to continue if key is held down
         if let Some(piston_window::Button::Keyboard(k)) = e.press_args() {
             match k {
                 piston_window::Key::Right => {
-                    player.spr.movespr(Direction::Right);
+                    input_sigs.notify("right".to_string());
                 },
                 piston_window::Key::Left => {
-                    player.spr.movespr(Direction::Left);
+                    input_sigs.notify("left".to_string());
                 },
                 piston_window::Key::Down => {
-                    player.spr.movespr(Direction::Down);
+                    input_sigs.notify("down".to_string());
                 },
                 piston_window::Key::Up => {
-                    player.spr.movespr(Direction::Up);
+                    input_sigs.notify("up".to_string());
                 }
                 _ => {}, // Catch all keys
             }
