@@ -13,13 +13,24 @@ use crate::observer::Event;
 //#[derive(Debug)]
 pub struct Player {
     // todo: make not pub
-    pub spr: Sprite
+    pub spr: Sprite,
+    moving: bool,
+    direction: Direction
 }
 
 impl Player {
     pub fn new() -> Player{
         Self {
-            spr: Sprite::new("reaper.png")
+            spr: Sprite::new("reaper.png"),
+            moving: false,
+            // todo: make constant default direction, share with sprite
+            direction: Direction::Down
+        }
+    }
+
+    pub fn update(&mut self) {
+        if self.moving {
+            self.spr.movespr(self.direction);
         }
     }
 }
@@ -27,10 +38,23 @@ impl Player {
 impl Observer for Player {
     fn receive(&mut self, e: &Event) {
         match e.name.as_str() {
-            "up" => self.spr.movespr(Direction::Up),
-            "down" => self.spr.movespr(Direction::Down),
-            "left" => self.spr.movespr(Direction::Left),
-            "right" => self.spr.movespr(Direction::Right),
+            "up" => {
+                self.direction = Direction::Up;
+                self.moving = true;
+            },
+            "down" => {
+                self.direction = Direction::Down;
+                self.moving = true;
+            },
+            "left" => {
+                self.direction = Direction::Left;
+                self.moving = true;
+            },
+            "right" => {
+                self.direction = Direction::Right;
+                self.moving = true;
+            },
+            "halt" => self.moving = false,
             _ => ()
         }
     }

@@ -8,15 +8,16 @@ use crate::observer::Observable;
 use crate::player::Player;
 //use crate::input::Input;
 use crate::graphics::{convert_renderable};
-use crate::sprite::Direction;
+//use crate::sprite::Direction;
 
 //use std::path::Path;
-//use std::{thread, time::Duration};
+use std::{thread, time::Duration};
 
 use std::cell::RefCell;
 
 extern crate piston_window;
 use crate::piston_window::PressEvent;
+use crate::piston_window::ReleaseEvent;
 use crate::piston_window::Transformed;
 use crate::piston_window::RenderEvent;
 use crate::piston_window::UpdateEvent;
@@ -59,6 +60,7 @@ fn main() {
     input_sigs.subscribe("down".to_string(), &player);
     input_sigs.subscribe("left".to_string(), &player);
     input_sigs.subscribe("right".to_string(), &player);
+    input_sigs.subscribe("halt".to_string(), &player);
 
     let mut events = piston_window::Events::new(piston_window::EventSettings::new());
     while let Some(e) = events.next(&mut window) {
@@ -80,7 +82,7 @@ fn main() {
 
         // game state update
         if let Some(u) = e.update_args() {
-            //rect.update(u.dt, window_size);
+            player.borrow_mut().update();
         }
 
         // input handling
@@ -100,9 +102,21 @@ fn main() {
                 piston_window::Key::Up => {
                     input_sigs.notify("up".to_string());
                 }
-                _ => {}, // Catch all keys
+                _ => {},
             }
         }
+        if let Some(piston_window::Button::Keyboard(k)) = e.release_args() {
+            match k {
+                // fix: if two keys are pressed and one is released, player stops moving entirely
+                piston_window::Key::Right | piston_window::Key::Left | piston_window::Key::Down | piston_window::Key::Up => {
+                    input_sigs.notify("halt".to_string());
+                },
+                _ => {},
+            }
+        }
+
+        // todo: use monotonic clock to find exact time for sleep
+        thread::sleep(Duration::new(0, 2_000_000_000u32 / 60));
     }
 }
 
