@@ -1,17 +1,20 @@
 use crate::observer::{Observable, Observer};
 use crate::piston_window::PressEvent;
 use crate::piston_window::ReleaseEvent;
+use std::collections::BTreeSet;
 use std::cell::RefCell;
 
 pub struct Input <'a> {
-    signals_out: Observable <'a>
+    signals_out: Observable <'a>,
     // todo: track all keys held simultaneously
+    keys_down: BTreeSet<piston_window::Key>
 }
 
 impl <'a> Input <'a> {
     pub fn new() -> Input <'a> {
         Self {
-            signals_out: Observable::new("input".to_string())
+            signals_out: Observable::new("input".to_string()),
+            keys_down: BTreeSet::new()
         }
     }
 
@@ -23,8 +26,17 @@ impl <'a> Input <'a> {
 
     // todo: what is a good name for this function?
     pub fn handle_event(&mut self, e: &piston_window::Event) {
-        // keys pressed down
+        // key pressed down
         if let Some(piston_window::Button::Keyboard(k)) = e.press_args() {
+            self.keys_down.insert(k);
+        }
+
+        // key released
+        if let Some(piston_window::Button::Keyboard(k)) = e.release_args() {
+            self.keys_down.remove(&k);
+        }
+
+        for k in &self.keys_down {
             match k {
                 piston_window::Key::Right => {
                     self.signals_out.notify("right".to_string());
@@ -41,15 +53,6 @@ impl <'a> Input <'a> {
                 _ => {},
             }
         }
-
-        // keys released
-        if let Some(piston_window::Button::Keyboard(k)) = e.release_args() {
-            match k {
-                piston_window::Key::Right | piston_window::Key::Left | piston_window::Key::Down | piston_window::Key::Up => {
-                    self.signals_out.notify("halt".to_string());
-                },
-                _ => {},
-            }
-        }
+        
     }
 }

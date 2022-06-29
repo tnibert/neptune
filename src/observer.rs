@@ -9,12 +9,12 @@ pub struct Event <'a> {
 }
 
 impl <'a> Event <'a> {
-    fn new(name: String, source: &'a Observable <'a>) -> Event <'a> {
+    /*fn new(name: String, source: &'a Observable <'a>) -> Event <'a> {
         Self {
             name: name,
             source: source
         }
-    }
+    }*/
 }
 
 pub trait Observer {
