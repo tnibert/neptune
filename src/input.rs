@@ -1,51 +1,55 @@
-// todo: no more SDL, encapsulate piston here
-
-use sdl2::EventPump;
-use sdl2::event::Event;
-use sdl2::keyboard::Keycode;
-use crate::observer::Observable;
+use crate::observer::{Observable, Observer};
+use crate::piston_window::PressEvent;
+use crate::piston_window::ReleaseEvent;
+use std::cell::RefCell;
 
 pub struct Input <'a> {
-    event_pump: EventPump,
-    pub observable: Observable <'a>
+    signals_out: Observable <'a>
+    // todo: track all keys held simultaneously
 }
 
 impl <'a> Input <'a> {
-    pub fn new(evt_recv: EventPump) -> Input <'a> {
+    pub fn new() -> Input <'a> {
         Self {
-            event_pump: evt_recv,
-            observable: Observable::new("input".to_string())
+            signals_out: Observable::new("input".to_string())
         }
     }
 
-    pub fn poll_input(&mut self) -> bool {
-        // event pump is queried to find out if there are any pending events
-        for event in self.event_pump.poll_iter() {
-            println!("{:?}", event);
-            match event {
-                Event::Quit {..} |
-                Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
-                    // todo: subscribe Game
-                    //&self.observable.notify("exit".to_string());
-                    return true;
+    pub fn subscribe(&mut self, subscriber: &'a RefCell<dyn Observer>, event_names: Vec<&str>) {
+        for en in event_names {
+            self.signals_out.subscribe(en.to_string(), &subscriber);
+        }
+    }
+
+    // todo: what is a good name for this function?
+    pub fn handle_event(&mut self, e: &piston_window::Event) {
+        // keys pressed down
+        if let Some(piston_window::Button::Keyboard(k)) = e.press_args() {
+            match k {
+                piston_window::Key::Right => {
+                    self.signals_out.notify("right".to_string());
                 },
-                // player control
-                // todo: allow diagonal movement
-                Event::KeyDown { keycode: Some(Keycode::Left), .. } => {
-                    &self.observable.notify("left".to_string());
+                piston_window::Key::Left => {
+                    self.signals_out.notify("left".to_string());
                 },
-                Event::KeyDown { keycode: Some(Keycode::Right), .. } => {
-                    &self.observable.notify("right".to_string());
+                piston_window::Key::Down => {
+                    self.signals_out.notify("down".to_string());
                 },
-                Event::KeyDown { keycode: Some(Keycode::Up), .. } => {
-                    &self.observable.notify("up".to_string());
-                },
-                Event::KeyDown { keycode: Some(Keycode::Down), .. } => {
-                    &self.observable.notify("down".to_string());
-                },
-                _ => {}
+                piston_window::Key::Up => {
+                    self.signals_out.notify("up".to_string());
+                }
+                _ => {},
             }
         }
-        return false;
+
+        // keys released
+        if let Some(piston_window::Button::Keyboard(k)) = e.release_args() {
+            match k {
+                piston_window::Key::Right | piston_window::Key::Left | piston_window::Key::Down | piston_window::Key::Up => {
+                    self.signals_out.notify("halt".to_string());
+                },
+                _ => {},
+            }
+        }
     }
 }

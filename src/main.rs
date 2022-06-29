@@ -2,11 +2,10 @@ mod observer;
 mod sprite;
 mod graphics;
 mod player;
-//mod input;
+mod input;
 
-use crate::observer::Observable;
 use crate::player::Player;
-//use crate::input::Input;
+use crate::input::Input;
 use crate::graphics::{convert_renderable};
 //use crate::sprite::Direction;
 
@@ -16,8 +15,6 @@ use std::{thread, time::Duration};
 use std::cell::RefCell;
 
 extern crate piston_window;
-use crate::piston_window::PressEvent;
-use crate::piston_window::ReleaseEvent;
 use crate::piston_window::Transformed;
 use crate::piston_window::RenderEvent;
 use crate::piston_window::UpdateEvent;
@@ -49,12 +46,8 @@ fn main() {
     let mut texture_context = window.create_texture_context();
     //let mut window_size: (f64, f64) = (0.0, 0.0);
 
-    let mut input_sigs = Observable::new("input".to_string());
-    input_sigs.subscribe("up".to_string(), &player);
-    input_sigs.subscribe("down".to_string(), &player);
-    input_sigs.subscribe("left".to_string(), &player);
-    input_sigs.subscribe("right".to_string(), &player);
-    input_sigs.subscribe("halt".to_string(), &player);
+    let mut input = Input::new();
+    input.subscribe(&player, vec!["up", "down", "left", "right", "halt"]);
 
     let mut events = piston_window::Events::new(piston_window::EventSettings::new());
     while let Some(e) = events.next(&mut window) {
@@ -80,32 +73,7 @@ fn main() {
         }
 
         // input handling
-        // todo: encapsulate
-        if let Some(piston_window::Button::Keyboard(k)) = e.press_args() {
-            match k {
-                piston_window::Key::Right => {
-                    input_sigs.notify("right".to_string());
-                },
-                piston_window::Key::Left => {
-                    input_sigs.notify("left".to_string());
-                },
-                piston_window::Key::Down => {
-                    input_sigs.notify("down".to_string());
-                },
-                piston_window::Key::Up => {
-                    input_sigs.notify("up".to_string());
-                }
-                _ => {},
-            }
-        }
-        if let Some(piston_window::Button::Keyboard(k)) = e.release_args() {
-            match k {
-                piston_window::Key::Right | piston_window::Key::Left | piston_window::Key::Down | piston_window::Key::Up => {
-                    input_sigs.notify("halt".to_string());
-                },
-                _ => {},
-            }
-        }
+        input.handle_event(&e);
 
         // todo: use monotonic clock to find exact time for sleep
         thread::sleep(Duration::new(0, 2_000_000_000u32 / 60));
