@@ -19,8 +19,6 @@ pub enum Direction {
 
 fn load_spritesheet(img: &im::RgbaImage) -> HashMap<Direction, Vec<im::RgbaImage>> {
     let mut sheet: HashMap<Direction, Vec<im::RgbaImage>> = HashMap::new();
-    //let mut sheet = [[im::RgbaImage::new(); SS_DOWN]; SS_ACROSS];
-    //state[0][1] = 42;
     let order = [Direction::Down, Direction::Left, Direction::Right, Direction::Up];
     let mut index = 0;
     for y in 0..SS_DOWN {
@@ -45,31 +43,22 @@ fn load_spritesheet(img: &im::RgbaImage) -> HashMap<Direction, Vec<im::RgbaImage
 }
 
 // handles renderable character
+// todo: slow down frame change
 //#[derive(Debug)]
 pub struct Sprite {
     pub position: [f64; 4],
     frame: usize,
-    //pub spritesheet: im::RgbaImage,
     frames: HashMap<Direction, Vec<im::RgbaImage>>,
     direction: Direction
-    //pub area: Rect,
-    //pub speed: i32,
 }
 
 impl Sprite {
     pub fn new(spritesheet_fname: &str) -> Sprite {
-        //let ss = load_image_asset_buffer("reaper.png");
         Self {
             position: [0.0, 0.0, 100.0, 100.0],
             frame: 0,
-            //spritesheet: ss,
-            // todo: pass in filename
             frames: load_spritesheet(&load_image_asset_buffer(spritesheet_fname)),
             direction: Direction::Down
-            // src position in the spritesheet
-            //area: Rect::new(0, 0, width, height),
-            //speed: speed,
-            //spritesheet: load_sprite_img(&window)
         }
     }
 

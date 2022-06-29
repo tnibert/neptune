@@ -6,7 +6,6 @@ use std::cell::RefCell;
 
 pub struct Input <'a> {
     signals_out: Observable <'a>,
-    // todo: track all keys held simultaneously
     keys_down: BTreeSet<piston_window::Key>
 }
 

@@ -7,11 +7,8 @@ mod input;
 use crate::player::Player;
 use crate::input::Input;
 use crate::graphics::{convert_renderable};
-//use crate::sprite::Direction;
 
-//use std::path::Path;
 use std::{thread, time::Duration};
-
 use std::cell::RefCell;
 
 extern crate piston_window;

@@ -3,8 +3,6 @@ use crate::sprite::Direction;
 use crate::observer::Observer;
 use crate::observer::Event;
 
-//use std::cell::RefCell;
-
 //const PLAYER_W: u32 = 26;
 //const PLAYER_H: u32 = 36;
 //const PLAYER_SPEED: i32 = 5;
@@ -12,7 +10,7 @@ use crate::observer::Event;
 // handles player, receives input signals
 //#[derive(Debug)]
 pub struct Player {
-    // todo: make not pub
+    // todo: make not pub?
     pub spr: Sprite
 }
 

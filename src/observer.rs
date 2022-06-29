@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 use std::cell::RefCell;
 
-
 //#[derive(Debug, PartialEq, Eq, Hash, Clone)]
 pub struct Event <'a> {
     pub name: String,
