@@ -1,20 +1,13 @@
-use crate::sprite::Sprite;
-
-// omfg this person is a saint:
-// https://nora.codes/tutorial/piston-a-game-library-in-rust/
-
-pub struct ColoredRect {
-    pub color: [f32; 4],
+pub struct Tile {
+    color: [f32; 4],
     //pub position: [f64; 4],
-    pub sprite: Sprite
 }
 
-impl ColoredRect {
+impl Tile {
     pub fn new() -> Self {
-        ColoredRect {
+        Tile {
             color: [1.0, 1.0, 1.0, 1.0],
-            //position: [0.0, 0.0, 100.0, 100.0],
-            sprite: Sprite::new()
+            //position: [0.0, 0.0, 100.0, 100.0]
         }
     }
 
@@ -22,19 +15,6 @@ impl ColoredRect {
         self.color[0] = Self::update_color(dt as f32, self.color[0], 0.001);
         self.color[1] = Self::update_color(dt as f32, self.color[1], 0.002);
         self.color[2] = Self::update_color(dt as f32, self.color[2], 0.003);
-        // X updates
-        /*if self.position[0] + self.position[2] >= size.0 ||
-            self.position[0] < 0.0 {
-            self.velocity[0] = -self.velocity[0];
-        }*/
-        //self.position[0] += self.velocity[0] * dt * 120.0;
-
-        // Y updates
-        /*if self.position[1] + self.position[3] >= size.1 || 
-            self.position[1] < 0.0 {
-            self.velocity[1] = -self.velocity[1];
-        }*/
-        //self.position[1] += self.velocity[1] * dt * 120.0;
     }
 
     fn update_color(dt: f32, color: f32, change: f32)->f32 {
