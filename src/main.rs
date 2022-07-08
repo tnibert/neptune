@@ -3,10 +3,12 @@ mod sprite;
 mod graphics;
 mod player;
 mod input;
+mod renderable;
 
 use crate::player::Player;
 use crate::input::Input;
 use crate::graphics::{convert_renderable};
+use crate::renderable::Renderable;
 
 use std::{thread, time::Duration};
 use std::cell::RefCell;
@@ -34,6 +36,10 @@ and interact with.
 
 fn main() {
     let player = RefCell::new(Player::new());
+
+    let mut renderables: Vec<&RefCell<dyn Renderable>> = vec![];
+    renderables.push(&player);
+
     let mut window: piston_window::PistonWindow =
         WindowSettings::new("Prototype", [SCREEN_WIDTH, SCREEN_HEIGHT])
         .exit_on_esc(true)
@@ -41,27 +47,28 @@ fn main() {
         .build().unwrap();
 
     let mut texture_context = window.create_texture_context();
-    //let mut window_size: (f64, f64) = (0.0, 0.0);
 
     let mut input = Input::new();
-    input.subscribe(&player, vec!["up", "down", "left", "right", "halt"]);
+    input.subscribe(&player, vec!["up", "down", "left", "right"]);
 
     let mut events = piston_window::Events::new(piston_window::EventSettings::new());
     while let Some(e) = events.next(&mut window) {
         // rendering
         if let Some(r) = e.render_args() {
-            //window_size = (r.window_size[0] as f64, r.window_size[1] as f64);
-            window.draw_2d(&e, |c, g, _| {
-                let transform = c.transform.trans(player.borrow().spr.position[0], player.borrow().spr.position[1]);
-                let ss = convert_renderable(&player.borrow().spr.current_frame(), &mut texture_context);
 
+            // clear the window
+            window.draw_2d(&e, |c, g, _| {
                 piston_window::clear([1.0; 4], g); // Clear to white
-                /*fpsfont.draw(&format!("{:.0} FPS", fpscounter.rate()), 
-                    &mut glyphs, &c.draw_state,
-                    c.transform.trans(10.0, 12.0), // Set the position of the drawing
-                    g).unwrap();*/
-                piston_window::image(&ss, transform, g);
             });
+
+            // draw the renderables
+            for r in &renderables {
+                window.draw_2d(&e, |c, g, _| {
+                    let transform = c.transform.trans(r.borrow().position().0, r.borrow().position().1);
+                    let out = convert_renderable(&r.borrow().render(), &mut texture_context);
+                    piston_window::image(&out, transform, g);
+                });
+            }
         }
 
         // game state update
@@ -73,7 +80,7 @@ fn main() {
         input.handle_event(&e);
 
         // todo: use monotonic clock to find exact time for sleep
-        thread::sleep(Duration::new(0, 2_000_000_000u32 / 60));
+        thread::sleep(Duration::new(0, 3_000_000_000u32 / 60));
     }
 }
 

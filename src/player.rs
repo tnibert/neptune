@@ -2,6 +2,7 @@ use crate::sprite::Sprite;
 use crate::sprite::Direction;
 use crate::observer::Observer;
 use crate::observer::Event;
+use crate::renderable::Renderable;
 
 //const PLAYER_W: u32 = 26;
 //const PLAYER_H: u32 = 36;
@@ -10,8 +11,7 @@ use crate::observer::Event;
 // handles player, receives input signals
 //#[derive(Debug)]
 pub struct Player {
-    // todo: make not pub?
-    pub spr: Sprite
+    spr: Sprite
 }
 
 impl Player {
@@ -23,6 +23,16 @@ impl Player {
 
     pub fn update(&mut self) {
 
+    }
+}
+
+impl Renderable for Player {
+    fn render(&self) -> &im::RgbaImage {
+        return self.spr.current_frame();
+    }
+
+    fn position(&self) -> (f64, f64) {
+        return (self.spr.position[0], self.spr.position[1]);
     }
 }
 
