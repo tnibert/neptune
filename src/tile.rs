@@ -1,27 +1,40 @@
+use crate::im::Pixel;
+use crate::renderable::Renderable;
+
+const TILE_SIZE: u32 = 32;       // all tiles are square
+
 pub struct Tile {
-    color: [f32; 4],
-    //pub position: [f64; 4],
+    //color: [f32; 4],
+    size: u32,
+    image: im::RgbaImage
 }
 
 impl Tile {
     pub fn new() -> Self {
-        Tile {
-            color: [1.0, 1.0, 1.0, 1.0],
-            //position: [0.0, 0.0, 100.0, 100.0]
+        let mut img = im::RgbaImage::new(TILE_SIZE, TILE_SIZE);
+
+        for x in 15..=17 {
+            for y in 8..24 {
+                img.put_pixel(x, y, im::Rgb([255, 0, 0]).to_rgba());
+                img.put_pixel(y, x, im::Rgb([255, 0, 0]).to_rgba());
+            }
         }
-    }
 
-    pub fn update(&mut self, dt: f64, _size: (f64, f64)) {
-        self.color[0] = Self::update_color(dt as f32, self.color[0], 0.001);
-        self.color[1] = Self::update_color(dt as f32, self.color[1], 0.002);
-        self.color[2] = Self::update_color(dt as f32, self.color[2], 0.003);
-    }
-
-    fn update_color(dt: f32, color: f32, change: f32)->f32 {
-        if color <= 0.0 {
-            1.0
-        } else {
-            color - change * dt * 120.0
+        Tile {
+            //color: [1.0, 1.0, 1.0, 1.0],
+            size: TILE_SIZE,
+            image: img
         }
     }
 }
+
+impl Renderable for Tile {
+    fn render(&self) -> &im::RgbaImage {
+        return &self.image;
+    }
+
+    fn position(&self) -> (f64, f64) {
+        return (100.0, 100.0);
+    }
+}
+
