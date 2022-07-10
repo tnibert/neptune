@@ -43,8 +43,8 @@ fn main() {
     let mytilearea = RefCell::new(TileArea::new(3));
 
     let mut renderables: Vec<&RefCell<dyn Renderable>> = vec![];
-    renderables.push(&player);
     renderables.push(&mytilearea);
+    renderables.push(&player);
 
     let mut window: piston_window::PistonWindow =
         WindowSettings::new("Prototype", [SCREEN_WIDTH, SCREEN_HEIGHT])

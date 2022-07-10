@@ -1,4 +1,3 @@
-use crate::im::Pixel;
 use crate::renderable::Renderable;
 
 pub const TILE_SIZE: usize = 32;       // all tiles are square
@@ -11,20 +10,11 @@ pub struct Tile {
 }
 
 impl Tile {
-    pub fn new() -> Self {
-        let mut img = im::RgbaImage::new(TILE_SIZE as u32, TILE_SIZE as u32);
-
-        for x in 15..=17 {
-            for y in 8..24 {
-                img.put_pixel(x, y, im::Rgb([255, 0, 0]).to_rgba());
-                img.put_pixel(y, x, im::Rgb([255, 0, 0]).to_rgba());
-            }
-        }
-
+    pub fn new<F: Fn() -> im::RgbaImage>(f: F) -> Self {
         Tile {
             //color: [1.0, 1.0, 1.0, 1.0],
             size: TILE_SIZE,
-            image: img
+            image: f()
         }
     }
 }
