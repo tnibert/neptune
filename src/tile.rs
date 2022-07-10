@@ -3,6 +3,7 @@ use crate::renderable::Renderable;
 
 const TILE_SIZE: u32 = 32;       // all tiles are square
 
+#[derive(Debug, PartialEq, Eq, Hash, Clone)]
 pub struct Tile {
     //color: [f32; 4],
     size: u32,

@@ -5,6 +5,7 @@ mod player;
 mod input;
 mod renderable;
 mod tile;
+mod tilemap;
 
 use crate::player::Player;
 use crate::input::Input;
