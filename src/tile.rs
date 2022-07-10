@@ -1,4 +1,4 @@
-use crate::renderable::Renderable;
+use crate::renderable::Render;
 
 pub const TILE_SIZE: usize = 32;       // all tiles are square
 
@@ -19,7 +19,7 @@ impl Tile {
     }
 }
 
-impl Renderable for Tile {
+impl Render for Tile {
     fn render(&self) -> &im::RgbaImage {
         return &self.image;
     }

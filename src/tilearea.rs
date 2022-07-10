@@ -1,4 +1,4 @@
-use crate::renderable::Renderable;
+use crate::renderable::Render;
 use crate::tile::{Tile, TILE_SIZE};
 use crate::im::Pixel;
 
@@ -48,7 +48,6 @@ fn assemble_tiles_to_image(width: usize,
             cur_tilemap_index += 1;
         }
     }
-    //im::imageops::overlay(&mut img, &on_top, 128, 128);
     return img;
 }
 
@@ -69,7 +68,7 @@ impl TileArea {
         if tile_map.len() % width != 0 {
             panic!("The map is not rectangular!!");
         }
-        let height = tile_map.len()/width;
+        let height = tile_map.len() / width;
 
         TileArea {
             /*width: width,
@@ -81,7 +80,7 @@ impl TileArea {
     }
 }
 
-impl Renderable for TileArea {
+impl Render for TileArea {
     fn render(&self) -> &im::RgbaImage {
         return &self.image;
     }

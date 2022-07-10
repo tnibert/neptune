@@ -10,7 +10,7 @@ mod tilearea;
 use crate::player::Player;
 use crate::input::Input;
 use crate::graphics::{convert_renderable};
-use crate::renderable::Renderable;
+use crate::renderable::Render;
 use crate::tile::Tile;
 use crate::tilearea::TileArea;
 
@@ -42,7 +42,7 @@ fn main() {
     let player = RefCell::new(Player::new());
     let mytilearea = RefCell::new(TileArea::new(3));
 
-    let mut renderables: Vec<&RefCell<dyn Renderable>> = vec![];
+    let mut renderables: Vec<&RefCell<dyn Render>> = vec![];
     renderables.push(&mytilearea);
     renderables.push(&player);
 
