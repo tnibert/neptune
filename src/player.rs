@@ -3,8 +3,9 @@ use crate::sprite::Direction;
 use crate::observer::Observer;
 use crate::observer::Event;
 use crate::renderable::Render;
+use crate::updateable::Update;
 
-const PLAYER_SPEED: f64 = 5.0;
+const PLAYER_SPEED: f64 = 1.0;
 
 // handles player, receives input signals
 pub struct Player {
@@ -17,9 +18,11 @@ impl Player {
             spr: Sprite::new("reaper.png", PLAYER_SPEED)
         }
     }
+}
 
-    pub fn update(&mut self) {
-
+impl Update for Player {
+    fn update(&mut self) {
+        self.spr.update();
     }
 }
 

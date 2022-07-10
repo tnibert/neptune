@@ -4,6 +4,7 @@ mod graphics;
 mod player;
 mod input;
 mod renderable;
+mod updateable;
 mod tile;
 mod tilearea;
 
@@ -11,6 +12,7 @@ use crate::player::Player;
 use crate::input::Input;
 use crate::graphics::{convert_renderable};
 use crate::renderable::Render;
+use crate::updateable::Update;
 use crate::tile::Tile;
 use crate::tilearea::TileArea;
 
@@ -41,6 +43,9 @@ and interact with.
 fn main() {
     let player = RefCell::new(Player::new());
     let mytilearea = RefCell::new(TileArea::new(3));
+
+    let mut updateables: Vec<&RefCell<dyn Update>> = vec![];
+    updateables.push(&player);
 
     let mut renderables: Vec<&RefCell<dyn Render>> = vec![];
     renderables.push(&mytilearea);
@@ -79,14 +84,16 @@ fn main() {
 
         // game state update
         if let Some(u) = e.update_args() {
-            player.borrow_mut().update();
+            for u in &updateables {
+                u.borrow_mut().update();
+            }
         }
 
         // input handling
         input.handle_event(&e);
 
         // todo: use monotonic clock to find exact time for sleep
-        thread::sleep(Duration::new(0, 3_000_000_000u32 / 60));
+        thread::sleep(Duration::new(0, 2_000_000_000u32 / 60));
     }
 }
 

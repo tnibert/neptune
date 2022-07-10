@@ -1,5 +1,6 @@
 use crate::graphics::*;
 use crate::renderable::Render;
+use crate::updateable::Update;
 use std::collections::HashMap;
 
 // todo: pass these in as parameters or determine from file
@@ -44,13 +45,13 @@ fn load_spritesheet(img: &im::RgbaImage, rows: usize, columns: usize) -> HashMap
 }
 
 // handles renderable character
-// todo: slow down frame change
 pub struct Sprite {
-    pub position: [f64; 4],
+    position: [f64; 4],
     frame: usize,
     frames: HashMap<Direction, Vec<im::RgbaImage>>,
     direction: Direction,
-    speed: f64
+    speed: f64,
+    frame_change_count: u32
 }
 
 impl Sprite {
@@ -60,7 +61,8 @@ impl Sprite {
             frame: 0,
             frames: load_spritesheet(&load_image_asset_buffer(spritesheet_fname), SS_DOWN, SS_ACROSS),
             direction: Direction::Down,
-            speed: speed
+            speed: speed,
+            frame_change_count: 0
         }
     }
 
@@ -82,13 +84,6 @@ impl Sprite {
         }
         
         self.direction = d;
-
-        if self.frame < MAX_FRAME {
-            self.frame += 1;
-        } else {
-            self.frame = 0;
-        }
-        //println!("{:?}", self.frame);
     }
 
     pub fn current_frame(&self) -> &im::RgbaImage {
@@ -103,5 +98,22 @@ impl Render for Sprite {
 
     fn position(&self) -> (f64, f64) {
         return (self.position[0], self.position[1]);
+    }
+}
+
+impl Update for Sprite {
+    fn update(&mut self) {
+        // update frame
+        // todo: beautify this
+        if self.frame_change_count > 2 {
+            if self.frame < MAX_FRAME {
+                self.frame += 1;
+            } else {
+                self.frame = 0;
+            }
+            self.frame_change_count = 0;
+        }
+        self.frame_change_count += 1;
+        //println!("{:?}", self.frame);
     }
 }
