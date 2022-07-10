@@ -5,13 +5,14 @@ mod player;
 mod input;
 mod renderable;
 mod tile;
-mod tilemap;
+mod tilearea;
 
 use crate::player::Player;
 use crate::input::Input;
 use crate::graphics::{convert_renderable};
 use crate::renderable::Renderable;
 use crate::tile::Tile;
+use crate::tilearea::TileArea;
 
 use std::{thread, time::Duration};
 use std::cell::RefCell;
@@ -39,11 +40,11 @@ and interact with.
 
 fn main() {
     let player = RefCell::new(Player::new());
-    let mytile = RefCell::new(Tile::new());
+    let mytilearea = RefCell::new(TileArea::new(3));
 
     let mut renderables: Vec<&RefCell<dyn Renderable>> = vec![];
     renderables.push(&player);
-    renderables.push(&mytile);
+    renderables.push(&mytilearea);
 
     let mut window: piston_window::PistonWindow =
         WindowSettings::new("Prototype", [SCREEN_WIDTH, SCREEN_HEIGHT])

@@ -1,18 +1,18 @@
 use crate::im::Pixel;
 use crate::renderable::Renderable;
 
-const TILE_SIZE: u32 = 32;       // all tiles are square
+pub const TILE_SIZE: usize = 32;       // all tiles are square
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]
 pub struct Tile {
     //color: [f32; 4],
-    size: u32,
+    size: usize,
     image: im::RgbaImage
 }
 
 impl Tile {
     pub fn new() -> Self {
-        let mut img = im::RgbaImage::new(TILE_SIZE, TILE_SIZE);
+        let mut img = im::RgbaImage::new(TILE_SIZE as u32, TILE_SIZE as u32);
 
         for x in 15..=17 {
             for y in 8..24 {
