@@ -4,7 +4,7 @@ use crate::observer::Observer;
 use crate::observer::Event;
 use crate::renderable::Render;
 
-//const PLAYER_SPEED: i32 = 5;
+const PLAYER_SPEED: f64 = 5.0;
 
 // handles player, receives input signals
 pub struct Player {
@@ -14,7 +14,7 @@ pub struct Player {
 impl Player {
     pub fn new() -> Player{
         Self {
-            spr: Sprite::new("reaper.png"),
+            spr: Sprite::new("reaper.png", PLAYER_SPEED)
         }
     }
 
@@ -25,11 +25,11 @@ impl Player {
 
 impl Render for Player {
     fn render(&self) -> &im::RgbaImage {
-        return self.spr.current_frame();
+        return self.spr.render();
     }
 
     fn position(&self) -> (f64, f64) {
-        return (self.spr.position[0], self.spr.position[1]);
+        return self.spr.position();
     }
 }
 
