@@ -2,6 +2,9 @@ use crate::renderable::Render;
 use crate::tile::{Tile, TILE_SIZE};
 use crate::im::Pixel;
 
+// size of tile register - e.g. up to 256 unique tiles
+type tile_reg = u8;
+
 // todo: encapsulate this in some kind of factory, allow different tile sets to be created
 fn create_tile_set() -> Vec<Tile> {
     vec![
@@ -33,16 +36,16 @@ fn create_tile_set() -> Vec<Tile> {
 }
 
 fn assemble_tiles_to_image(width: usize,
-                  height: usize,
-                  tile_map: Vec<u8>,
-                  available_tiles: Vec<Tile>) -> im::RgbaImage {
+                           height: usize,
+                           tile_map: Vec<TileMeta>,
+                           available_tiles: Vec<Tile>) -> im::RgbaImage {
     let mut img = im::RgbaImage::new((TILE_SIZE*width) as u32, (TILE_SIZE*height) as u32);
     let mut cur_tilemap_index: usize = 0;
     for y in 0..height {
         for x in 0..width {
-            println!("{}: {}", cur_tilemap_index, tile_map[cur_tilemap_index]);
+            println!("{}: {}", cur_tilemap_index, tile_map[cur_tilemap_index].tile_register_index);
             im::imageops::overlay(&mut img,
-                                  available_tiles[tile_map[cur_tilemap_index] as usize].render(),
+                                  available_tiles[tile_map[cur_tilemap_index].tile_register_index as usize].render(),
                                   (x * TILE_SIZE) as i64,
                                   (y * TILE_SIZE) as i64);
             cur_tilemap_index += 1;
@@ -51,6 +54,14 @@ fn assemble_tiles_to_image(width: usize,
     return img;
 }
 
+// Tile + metadata
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
+struct TileMeta {
+    tile_register_index: tile_reg,
+    walkoverable: bool
+}
+
+// A grouping of tiles into one image
 pub struct TileArea {
     /*width: usize,
     height: usize,
@@ -61,9 +72,18 @@ pub struct TileArea {
 
 impl TileArea {
     pub fn new(width: usize) -> Self {
-        let tile_map = vec![1, 0, 0,
-                            0, 0, 0,
-                            1, 0, 1];
+        let c = TileMeta {
+            tile_register_index: 1,
+            walkoverable: false
+        };
+        let r = TileMeta {
+            tile_register_index: 0,
+            walkoverable: true
+        };
+
+        let tile_map = vec![c, r, r,
+                            r, r, r,
+                            c, r, c];
 
         if tile_map.len() % width != 0 {
             panic!("The map is not rectangular!!");
