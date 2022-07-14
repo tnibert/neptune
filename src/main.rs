@@ -7,6 +7,7 @@ mod renderable;
 mod updateable;
 mod tile;
 mod tilearea;
+mod collision;
 
 use crate::player::Player;
 use crate::input::Input;
@@ -14,7 +15,7 @@ use crate::graphics::{convert_renderable};
 use crate::renderable::Render;
 use crate::updateable::Update;
 use crate::tile::Tile;
-use crate::tilearea::TileArea;
+use crate::tilearea::{TileArea, create_tile_map};
 
 use std::{thread, time::Duration};
 use std::cell::RefCell;
@@ -42,7 +43,7 @@ and interact with.
 
 fn main() {
     let player = RefCell::new(Player::new());
-    let mytilearea = RefCell::new(TileArea::new(3));
+    let mytilearea = RefCell::new(TileArea::new(3, create_tile_map()));
 
     let mut updateables: Vec<&RefCell<dyn Update>> = vec![];
     updateables.push(&player);

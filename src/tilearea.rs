@@ -1,9 +1,10 @@
 use crate::renderable::Render;
 use crate::tile::{Tile, TILE_SIZE};
+use crate::collision::Rect;
 use crate::im::Pixel;
 
 // size of tile register - e.g. up to 256 unique tiles
-type tile_reg = u8;
+type TileReg = u8;
 
 // todo: encapsulate this in some kind of factory, allow different tile sets to be created
 fn create_tile_set() -> Vec<Tile> {
@@ -26,7 +27,6 @@ fn create_tile_set() -> Vec<Tile> {
     
             for x in 0..TILE_SIZE as u32 {
                 for y in 0..TILE_SIZE as u32 {
-                    //img.put_pixel(x, y, im::Rgb([255, 0, 0]).to_rgba());
                     img.put_pixel(y, x, im::Rgb([0, 0, 0]).to_rgba());
                 }
             }
@@ -37,7 +37,7 @@ fn create_tile_set() -> Vec<Tile> {
 
 fn assemble_tiles_to_image(width: usize,
                            height: usize,
-                           tile_map: Vec<TileMeta>,
+                           tile_map: &Vec<TileMeta>,
                            available_tiles: Vec<Tile>) -> im::RgbaImage {
     let mut img = im::RgbaImage::new((TILE_SIZE*width) as u32, (TILE_SIZE*height) as u32);
     let mut cur_tilemap_index: usize = 0;
@@ -54,48 +54,50 @@ fn assemble_tiles_to_image(width: usize,
     return img;
 }
 
+// this is temporary
+pub fn create_tile_map() -> Vec<TileMeta> {
+    let c = TileMeta {
+        tile_register_index: 1,
+        walkoverable: false
+    };
+    let r = TileMeta {
+        tile_register_index: 0,
+        walkoverable: true
+    };
+
+    vec![c, r, r,
+         r, r, r,
+         c, r, c]
+}
+
 // Tile + metadata
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
-struct TileMeta {
-    tile_register_index: tile_reg,
-    walkoverable: bool
+pub struct TileMeta {
+    tile_register_index: TileReg,
+    walkoverable: bool,
+    //position: Rect
 }
 
 // A grouping of tiles into one image
 pub struct TileArea {
     /*width: usize,
-    height: usize,
-    map: Vec<u8>,
-    available_tiles: Vec<Tile>,*/
+    height: usize,*/
+    map: Vec<TileMeta>,
     image: im::RgbaImage
 }
 
 impl TileArea {
-    pub fn new(width: usize) -> Self {
-        let c = TileMeta {
-            tile_register_index: 1,
-            walkoverable: false
-        };
-        let r = TileMeta {
-            tile_register_index: 0,
-            walkoverable: true
-        };
-
-        let tile_map = vec![c, r, r,
-                            r, r, r,
-                            c, r, c];
-
+    pub fn new(width: usize, tile_map: Vec<TileMeta>) -> Self {
         if tile_map.len() % width != 0 {
             panic!("The map is not rectangular!!");
         }
         let height = tile_map.len() / width;
 
+        let img = assemble_tiles_to_image(width, height, &tile_map, create_tile_set());
+
         TileArea {
-            /*width: width,
-            height: height,
             map: tile_map,
-            available_tiles: available_tiles,*/
-            image: assemble_tiles_to_image(width, height, tile_map, create_tile_set())
+            image: img
         }
     }
 }
@@ -106,7 +108,7 @@ impl Render for TileArea {
     }
 
     fn position(&self) -> (f64, f64) {
-        return (300.0, 300.0);
+        return (200.0, 200.0);
     }
 }
 

@@ -1,6 +1,7 @@
 use crate::graphics::*;
 use crate::renderable::Render;
 use crate::updateable::Update;
+use crate::collision::Rect;
 use std::collections::HashMap;
 
 // todo: pass these in as parameters or determine from file
@@ -46,7 +47,7 @@ fn load_spritesheet(img: &im::RgbaImage, rows: usize, columns: usize) -> HashMap
 
 // handles renderable character
 pub struct Sprite {
-    position: [f64; 4],
+    position: Rect,
     frame: usize,
     frames: HashMap<Direction, Vec<im::RgbaImage>>,
     direction: Direction,
@@ -57,7 +58,7 @@ pub struct Sprite {
 impl Sprite {
     pub fn new(spritesheet_fname: &str, speed: f64) -> Sprite {
         Self {
-            position: [0.0, 0.0, 100.0, 100.0],
+            position: Rect{x: 0.0, y: 0.0, w: 100.0, h: 100.0},         // todo: width and height are placeholders
             frame: 0,
             frames: load_spritesheet(&load_image_asset_buffer(spritesheet_fname), SS_DOWN, SS_ACROSS),
             direction: Direction::Down,
@@ -70,16 +71,16 @@ impl Sprite {
         // todo: bounds checking
         match d {
             Direction::Left => {
-                self.position[0] -= self.speed;
+                self.position.x -= self.speed;
             },
             Direction::Right => {
-                self.position[0] += self.speed;
+                self.position.x += self.speed;
             },
             Direction::Up => {
-                self.position[1] -= self.speed;
+                self.position.y -= self.speed;
             },
             Direction::Down => {
-                self.position[1] += self.speed;
+                self.position.y += self.speed;
             },
         }
         
@@ -97,7 +98,7 @@ impl Render for Sprite {
     }
 
     fn position(&self) -> (f64, f64) {
-        return (self.position[0], self.position[1]);
+        return (self.position.x, self.position.y);
     }
 }
 

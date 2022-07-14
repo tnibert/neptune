@@ -5,7 +5,7 @@ pub const TILE_SIZE: usize = 32;       // all tiles are square
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]
 pub struct Tile {
     //color: [f32; 4],
-    size: usize,
+    size: usize,                      // size of one side of square
     image: im::RgbaImage
 }
 
