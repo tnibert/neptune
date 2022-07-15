@@ -4,7 +4,7 @@ use crate::collision::Rect;
 use crate::im::Pixel;
 
 // size of tile register - e.g. up to 256 unique tiles
-type TileReg = u8;
+type TileRegIndex = u8;
 
 // todo: encapsulate this in some kind of factory, allow different tile sets to be created
 fn create_tile_set() -> Vec<Tile> {
@@ -37,15 +37,15 @@ fn create_tile_set() -> Vec<Tile> {
 
 fn assemble_tiles_to_image(width: usize,
                            height: usize,
-                           tile_map: &Vec<TileMeta>,
+                           tile_map: &Vec<TileRegIndex>,
                            available_tiles: Vec<Tile>) -> im::RgbaImage {
     let mut img = im::RgbaImage::new((TILE_SIZE*width) as u32, (TILE_SIZE*height) as u32);
     let mut cur_tilemap_index: usize = 0;
     for y in 0..height {
         for x in 0..width {
-            println!("{}: {}", cur_tilemap_index, tile_map[cur_tilemap_index].tile_register_index);
+            //println!("{}: {}", cur_tilemap_index, tile_map[cur_tilemap_index]);
             im::imageops::overlay(&mut img,
-                                  available_tiles[tile_map[cur_tilemap_index].tile_register_index as usize].render(),
+                                  available_tiles[tile_map[cur_tilemap_index] as usize].render(),
                                   (x * TILE_SIZE) as i64,
                                   (y * TILE_SIZE) as i64);
             cur_tilemap_index += 1;
@@ -55,39 +55,30 @@ fn assemble_tiles_to_image(width: usize,
 }
 
 // this is temporary
-pub fn create_tile_map() -> Vec<TileMeta> {
-    let c = TileMeta {
-        tile_register_index: 1,
-        walkoverable: false
-    };
-    let r = TileMeta {
-        tile_register_index: 0,
-        walkoverable: true
-    };
-
-    vec![c, r, r,
-         r, r, r,
-         c, r, c]
+pub fn create_tile_map() -> Vec<TileRegIndex> {
+    vec![1, 0, 0,
+         0, 0, 0,
+         1, 0, 1]
 }
 
-// Tile + metadata
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
-pub struct TileMeta {
-    tile_register_index: TileReg,
-    walkoverable: bool,
-    //position: Rect
+// maybe move to collision.rs?
+// ability to move through a TileArea
+pub enum Permeability {
+    Permeable,
+    NonPermeable,
+    FromChild
 }
 
 // A grouping of tiles into one image
 pub struct TileArea {
-    /*width: usize,
-    height: usize,*/
-    map: Vec<TileMeta>,
+    position: Rect,
+    permeability: Permeability,
+    map: Vec<TileRegIndex>,
     image: im::RgbaImage
 }
 
 impl TileArea {
-    pub fn new(width: usize, tile_map: Vec<TileMeta>) -> Self {
+    pub fn new(width: usize, tile_map: Vec<TileRegIndex>) -> Self {
         if tile_map.len() % width != 0 {
             panic!("The map is not rectangular!!");
         }
@@ -96,6 +87,13 @@ impl TileArea {
         let img = assemble_tiles_to_image(width, height, &tile_map, create_tile_set());
 
         TileArea {
+            position: Rect {
+                x: 200.0,
+                y: 200.0,
+                w: width as f64,
+                h: height as f64
+            },
+            permeability: Permeability::Permeable,
             map: tile_map,
             image: img
         }
@@ -108,7 +106,7 @@ impl Render for TileArea {
     }
 
     fn position(&self) -> (f64, f64) {
-        return (200.0, 200.0);
+        return (self.position.x, self.position.y);
     }
 }
 
@@ -119,6 +117,6 @@ mod tests {
 
     #[test]
     fn test_construction() {
-        let test = TileArea::new(3);
+        let test = TileArea::new(3, create_tile_map());
     }
 }
