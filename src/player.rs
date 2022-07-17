@@ -2,8 +2,7 @@ use crate::sprite::Sprite;
 use crate::sprite::Direction;
 use crate::observer::Observer;
 use crate::observer::Event;
-use crate::renderable::Render;
-use crate::updateable::Update;
+use crate::gameobject::GameObject;
 
 const PLAYER_SPEED: f64 = 1.0;
 
@@ -20,19 +19,17 @@ impl Player {
     }
 }
 
-impl Update for Player {
-    fn update(&mut self) {
-        self.spr.update();
-    }
-}
-
-impl Render for Player {
-    fn render(&self) -> &im::RgbaImage {
+impl GameObject for Player {
+    fn render(&self) -> Option<im::RgbaImage> {
         return self.spr.render();
     }
 
-    fn position(&self) -> (f64, f64) {
+    fn position(&self) -> Option<(f64, f64)> {
         return self.spr.position();
+    }
+
+    fn update(&mut self) {
+        self.spr.update();
     }
 }
 

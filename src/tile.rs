@@ -1,4 +1,4 @@
-use crate::renderable::Render;
+use crate::gameobject::GameObject;
 
 pub const TILE_SIZE: usize = 32;       // all tiles are square
 
@@ -19,13 +19,16 @@ impl Tile {
     }
 }
 
-impl Render for Tile {
-    fn render(&self) -> &im::RgbaImage {
-        return &self.image;
+// perhaps a tile should not be renderable without a TileArea
+impl GameObject for Tile {
+    fn render(&self) -> Option<im::RgbaImage> {
+        return Some(self.image.clone());
     }
 
-    fn position(&self) -> (f64, f64) {
-        return (100.0, 100.0);
+    fn position(&self) -> Option<(f64, f64)> {
+        return Some((100.0, 100.0));
     }
+
+    fn update(&mut self) {}
 }
 

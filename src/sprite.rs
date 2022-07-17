@@ -1,6 +1,5 @@
 use crate::graphics::*;
-use crate::renderable::Render;
-use crate::updateable::Update;
+use crate::gameobject::GameObject;
 use crate::collision::Rect;
 use std::collections::HashMap;
 
@@ -58,7 +57,12 @@ pub struct Sprite {
 impl Sprite {
     pub fn new(spritesheet_fname: &str, speed: f64) -> Sprite {
         Self {
-            position: Rect{x: 0.0, y: 0.0, w: 100.0, h: 100.0},         // todo: width and height are placeholders
+            position: Rect {
+                x: 0.0,
+                y: 0.0,
+                w: 100.0,
+                h: 100.0
+            },         // todo: width and height are placeholders
             frame: 0,
             frames: load_spritesheet(&load_image_asset_buffer(spritesheet_fname), SS_DOWN, SS_ACROSS),
             direction: Direction::Down,
@@ -92,17 +96,15 @@ impl Sprite {
     }
 }
 
-impl Render for Sprite {
-    fn render(&self) -> &im::RgbaImage {
-        return self.current_frame();
+impl GameObject for Sprite {
+    fn render(&self) -> Option<im::RgbaImage> {
+        return Some(self.current_frame().clone());
     }
 
-    fn position(&self) -> (f64, f64) {
-        return (self.position.x, self.position.y);
+    fn position(&self) -> Option<(f64, f64)> {
+        return Some((self.position.x, self.position.y));
     }
-}
 
-impl Update for Sprite {
     fn update(&mut self) {
         // update frame
         // todo: beautify this
