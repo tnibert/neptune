@@ -5,23 +5,21 @@ use crate::gameobject::GameObject;
 
 use crate::im::Pixel;
 
-use std::cell::RefCell;
-
 pub const SCREEN_WIDTH: u32 = 640;
 pub const SCREEN_HEIGHT: u32 = 480;
 
-pub struct Game <'a> {
-    pub input: Input<'a>,
-    gameobjects: Vec<Box<RefCell<dyn GameObject>>>
+pub struct Game {
+    pub input: Input,
+    gameobjects: Vec<Box<dyn GameObject>>
 }
 
-impl Game <'_> {
+impl Game {
     pub fn new() -> Self {
-        let player = Box::new(RefCell::new(Player::new()));
+        let player = Box::new(Player::new());
         //let mytilearea = RefCell::new(TileArea::new(create_tile_map()));
 
         // just for testing
-        let mytile = Box::new(RefCell::new(
+        let mytile = Box::new(
             // black square
             Tile::new(|| {
                 let mut img = im::RgbaImage::new(TILE_SIZE as u32, TILE_SIZE as u32);
@@ -33,15 +31,12 @@ impl Game <'_> {
                 }
                 img
             })
-        ));
+        );
 
         // setup subscriptions
         let mut input = Input::new();
-        // TODO
-        //let p_ref: &RefCell<Player> = &player;
-        //input.subscribe(p_ref, vec!["up", "down", "left", "right"]);
+        input.subscribe(player.observer.clone(), vec!["up", "down", "left", "right"]);
 
-        //drop(p_ref);
         Game {
             input: input,
             gameobjects: vec![mytile, player]
@@ -49,7 +44,7 @@ impl Game <'_> {
     }
 }
 
-impl GameObject for Game <'_> {
+impl GameObject for Game {
     // create the screen image
     fn render(&self) -> Option<im::RgbaImage> {
         let mut screen_img = im::RgbaImage::new(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -63,8 +58,8 @@ impl GameObject for Game <'_> {
         }
 
         for g in &self.gameobjects {
-            if let Some(img) = g.borrow().render() {
-                if let Some(pos) = g.borrow().position() {
+            if let Some(img) = g.render() {
+                if let Some(pos) = g.position() {
                     im::imageops::overlay(&mut screen_img, &img, pos.0 as i64, pos.1 as i64);
                 } else {
                     continue;
@@ -82,8 +77,8 @@ impl GameObject for Game <'_> {
     }
 
     fn update(&mut self) {
-        for u in &self.gameobjects {
-            u.borrow_mut().update();
+        for u in self.gameobjects.iter_mut() {
+            u.update();
         }
     }
 }

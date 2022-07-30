@@ -1,25 +1,25 @@
-use crate::observer::{Observable, Observer};
+use crate::observer::{Observable, Listener};
 use crate::piston_window::PressEvent;
 use crate::piston_window::ReleaseEvent;
 use std::collections::BTreeSet;
-use std::cell::RefCell;
+use std::rc::Rc;
 
-pub struct Input <'a> {
-    signals_out: Observable <'a>,
+pub struct Input {
+    signals_out: Observable,
     keys_down: BTreeSet<piston_window::Key>
 }
 
-impl <'a> Input <'a> {
-    pub fn new() -> Input <'a> {
+impl Input {
+    pub fn new() -> Input {
         Self {
             signals_out: Observable::new("input".to_string()),
             keys_down: BTreeSet::new()
         }
     }
 
-    pub fn subscribe(&mut self, subscriber: &'a RefCell<dyn Observer>, event_names: Vec<&str>) {
+    pub fn subscribe(&mut self, subscriber: Rc<Listener>, event_names: Vec<&str>) {
         for en in event_names {
-            self.signals_out.subscribe(en.to_string(), &subscriber);
+            self.signals_out.subscribe(en.to_string(), subscriber.clone());
         }
     }
 
