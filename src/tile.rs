@@ -19,12 +19,12 @@ impl Tile {
     }
 }
 
-// perhaps a tile should not be renderable without a TileArea
 impl GameObject for Tile {
     fn render(&self) -> Option<im::RgbaImage> {
         return Some(self.image.clone());
     }
 
+    // todo: tile should not have position
     fn position(&self) -> Option<(f64, f64)> {
         return Some((100.0, 100.0));
     }

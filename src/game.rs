@@ -2,6 +2,7 @@ use crate::tile::{Tile, TILE_SIZE};
 use crate::player::Player;
 use crate::input::Input;
 use crate::gameobject::GameObject;
+use crate::tilemap::TileMap;
 
 use crate::im::Pixel;
 
@@ -33,13 +34,15 @@ impl Game {
             })
         );
 
+        let mytilemap = Box::new(TileMap::new());
+
         // setup subscriptions
         let mut input = Input::new();
         input.subscribe(player.observer.clone(), vec!["up", "down", "left", "right"]);
 
         Game {
             input: input,
-            gameobjects: vec![mytile, player]
+            gameobjects: vec![mytilemap, player]
         }
     }
 }

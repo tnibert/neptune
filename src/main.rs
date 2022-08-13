@@ -5,7 +5,7 @@ mod player;
 mod input;
 mod gameobject;
 mod tile;
-//mod tilearea;
+mod tilemap;
 mod collision;
 mod game;
 
@@ -16,7 +16,6 @@ use crate::game::{Game, SCREEN_WIDTH, SCREEN_HEIGHT};
 use crate::gameobject::GameObject;
 
 use std::{thread, time::Duration};
-//use std::cell::RefCell;
 
 extern crate piston_window;
 //use crate::piston_window::Transformed;
