@@ -1,4 +1,3 @@
-use crate::tile::{Tile, TILE_SIZE};
 use crate::player::Player;
 use crate::input::Input;
 use crate::gameobject::GameObject;
@@ -17,24 +16,8 @@ pub struct Game {
 impl Game {
     pub fn new() -> Self {
         let player = Box::new(Player::new());
-        //let mytilearea = RefCell::new(TileArea::new(create_tile_map()));
 
-        // just for testing
-        let mytile = Box::new(
-            // black square
-            Tile::new(|| {
-                let mut img = im::RgbaImage::new(TILE_SIZE as u32, TILE_SIZE as u32);
-        
-                for x in 0..TILE_SIZE as u32 {
-                    for y in 0..TILE_SIZE as u32 {
-                        img.put_pixel(x, y, im::Rgb([0, 0, 0]).to_rgba());
-                    }
-                }
-                img
-            })
-        );
-
-        let mytilemap = Box::new(TileMap::new());
+        let mytilemap = Box::new(TileMap::new(1));
 
         // setup subscriptions
         let mut input = Input::new();

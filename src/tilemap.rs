@@ -11,35 +11,41 @@ pub struct TileMap {
 
 // a map of tiles
 impl TileMap {
-    pub fn new() -> Self {
-        // test data, todo: replace
+    pub fn new(width: usize) -> Self {
+        // test data for tiles, todo: pass in
+        let tiles = vec![
+            // cross
+            Tile::new(|| {
+                let mut img = im::RgbaImage::new(TILE_SIZE as u32, TILE_SIZE as u32);
+
+                for x in 15..=17 {
+                    for y in 8..24 {
+                        img.put_pixel(x, y, im::Rgb([255, 0, 0]).to_rgba());
+                        img.put_pixel(y, x, im::Rgb([255, 0, 0]).to_rgba());
+                    }
+                }
+                img
+            }),
+            // black square
+            Tile::new(|| {
+                let mut img = im::RgbaImage::new(TILE_SIZE as u32, TILE_SIZE as u32);
+
+                for x in 0..TILE_SIZE as u32 {
+                    for y in 0..TILE_SIZE as u32 {
+                        img.put_pixel(x, y, im::Rgb([0, 0, 0]).to_rgba());
+                    }
+                }
+                img
+            })
+        ];
+
+        if tiles.len() % width != 0 {
+            panic!("The map is not rectangular!!");
+        }
+        
         TileMap {
-            tiles: vec![
-                // cross
-                Tile::new(|| {
-                    let mut img = im::RgbaImage::new(TILE_SIZE as u32, TILE_SIZE as u32);
-            
-                    for x in 15..=17 {
-                        for y in 8..24 {
-                            img.put_pixel(x, y, im::Rgb([255, 0, 0]).to_rgba());
-                            img.put_pixel(y, x, im::Rgb([255, 0, 0]).to_rgba());
-                        }
-                    }
-                    img
-                }),
-                // black square
-                Tile::new(|| {
-                    let mut img = im::RgbaImage::new(TILE_SIZE as u32, TILE_SIZE as u32);
-            
-                    for x in 0..TILE_SIZE as u32 {
-                        for y in 0..TILE_SIZE as u32 {
-                            img.put_pixel(x, y, im::Rgb([0, 0, 0]).to_rgba());
-                        }
-                    }
-                    img
-                })
-            ],
-            width: 1
+            tiles: tiles,
+            width: width
         }
     }
 
@@ -66,7 +72,7 @@ impl GameObject for TileMap {
                     ((step % self.get_width()) * TILE_SIZE) as i64,
                     ((step / self.get_width()) * TILE_SIZE) as i64);
             } else {
-                continue;
+                panic!("tile did not render");
             }
             
             step += 1;
