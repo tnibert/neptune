@@ -1,7 +1,6 @@
-// this is intended to replace tilearea.rs
-
 use crate::gameobject::GameObject;
 use crate::tile::{Tile, TILE_SIZE};
+use crate::collision::Rect;
 use crate::im::Pixel;
 
 pub struct TileMap {
@@ -49,7 +48,9 @@ impl TileMap {
         }
     }
 
-    pub fn query_tile_at_location(&self) {}
+    pub fn query_permeability_at_location(&self) -> bool {
+        true
+    }
 
     fn get_width(&self) -> usize {
         return self.width;
@@ -80,8 +81,10 @@ impl GameObject for TileMap {
         return Some(img);
     }
 
-    fn position(&self) -> Option<(f64, f64)> {
-        return Some((100.0, 100.0));
+    fn position(&self) -> Option<Rect> {
+        return Some(Rect{x: 50.0, y: 50.0,
+            w: (self.get_width() * TILE_SIZE) as f64,
+            h: (self.get_height() * TILE_SIZE) as f64});
     }
 
     fn update(&mut self) {}

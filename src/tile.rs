@@ -1,4 +1,5 @@
 use crate::gameobject::GameObject;
+use crate::collision::Rect;
 
 pub const TILE_SIZE: usize = 32;       // all tiles are square
 
@@ -23,6 +24,10 @@ impl Tile {
             permeable: is_permeable
         }
     }
+
+    pub fn is_permeable(&self) -> bool {
+        self.permeable
+    }
 }
 
 impl GameObject for Tile {
@@ -30,7 +35,7 @@ impl GameObject for Tile {
         return Some(self.image.clone());
     }
 
-    fn position(&self) -> Option<(f64, f64)> {
+    fn position(&self) -> Option<Rect> {
         return None;
     }
 

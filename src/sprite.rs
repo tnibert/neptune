@@ -101,8 +101,8 @@ impl GameObject for Sprite {
         return Some(self.current_frame().clone());
     }
 
-    fn position(&self) -> Option<(f64, f64)> {
-        return Some((self.position.x, self.position.y));
+    fn position(&self) -> Option<Rect> {
+        return Some(self.position.clone());
     }
 
     fn update(&mut self) {

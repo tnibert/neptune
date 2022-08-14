@@ -2,6 +2,7 @@ use crate::sprite::Sprite;
 use crate::sprite::Direction;
 use crate::observer::Listener;
 use crate::gameobject::GameObject;
+use crate::collision::Rect;
 
 use std::rc::Rc;
 
@@ -27,7 +28,7 @@ impl GameObject for Player {
         return self.spr.render();
     }
 
-    fn position(&self) -> Option<(f64, f64)> {
+    fn position(&self) -> Option<Rect> {
         return self.spr.position();
     }
 

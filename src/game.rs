@@ -2,6 +2,7 @@ use crate::player::Player;
 use crate::input::Input;
 use crate::gameobject::GameObject;
 use crate::tilemap::TileMap;
+use crate::collision::Rect;
 
 use crate::im::Pixel;
 
@@ -46,7 +47,7 @@ impl GameObject for Game {
         for g in &self.gameobjects {
             if let Some(img) = g.render() {
                 if let Some(pos) = g.position() {
-                    im::imageops::overlay(&mut screen_img, &img, pos.0 as i64, pos.1 as i64);
+                    im::imageops::overlay(&mut screen_img, &img, pos.x as i64, pos.y as i64);
                 } else {
                     continue;
                 }
@@ -58,8 +59,8 @@ impl GameObject for Game {
         return Some(screen_img);
     }
 
-    fn position(&self) -> Option<(f64, f64)> {
-        return Some((0.0, 0.0));
+    fn position(&self) -> Option<Rect> {
+        return Some(Rect{x: 0.0, y: 0.0, w: SCREEN_WIDTH as f64, h: SCREEN_HEIGHT as f64});
     }
 
     fn update(&mut self) {
