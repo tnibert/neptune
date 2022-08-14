@@ -11,7 +11,6 @@ mod game;
 
 
 use crate::graphics::{convert_renderable};
-//use crate::tilearea::{TileArea, create_tile_map};
 use crate::game::{Game, SCREEN_WIDTH, SCREEN_HEIGHT};
 use crate::gameobject::GameObject;
 
