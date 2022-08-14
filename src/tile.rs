@@ -2,19 +2,25 @@ use crate::gameobject::GameObject;
 
 pub const TILE_SIZE: usize = 32;       // all tiles are square
 
+/*
+A key question is whether Tile should know if it is permeable.
+Given that a Tile will typically represent some sort of material in
+game, I think the answer is yes at this stage.
+*/
+
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]
 pub struct Tile {
-    //color: [f32; 4],
     size: usize,                      // size of one side of square
-    image: im::RgbaImage
+    image: im::RgbaImage,
+    permeable: bool
 }
 
 impl Tile {
-    pub fn new<F: Fn() -> im::RgbaImage>(f: F) -> Self {
+    pub fn new<F: Fn() -> im::RgbaImage>(create_image: F, is_permeable: bool) -> Self {
         Tile {
-            //color: [1.0, 1.0, 1.0, 1.0],
             size: TILE_SIZE,
-            image: f()
+            image: create_image(),
+            permeable: is_permeable
         }
     }
 }
@@ -24,9 +30,8 @@ impl GameObject for Tile {
         return Some(self.image.clone());
     }
 
-    // todo: tile should not have position
     fn position(&self) -> Option<(f64, f64)> {
-        return Some((100.0, 100.0));
+        return None;
     }
 
     fn update(&mut self) {}

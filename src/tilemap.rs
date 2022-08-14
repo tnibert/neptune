@@ -25,7 +25,7 @@ impl TileMap {
                     }
                 }
                 img
-            }),
+            }, true),
             // black square
             Tile::new(|| {
                 let mut img = im::RgbaImage::new(TILE_SIZE as u32, TILE_SIZE as u32);
@@ -36,7 +36,7 @@ impl TileMap {
                     }
                 }
                 img
-            })
+            }, false)
         ];
 
         if tiles.len() % width != 0 {
