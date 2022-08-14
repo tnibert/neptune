@@ -50,22 +50,21 @@ impl TileMap {
     }
 
     fn get_height(&self) -> usize {
-        return &self.tiles.len() / &self.width;
+        return self.tiles.len() / self.width;
     }
 }
 
 impl GameObject for TileMap {
     fn render(&self) -> Option<im::RgbaImage> {
-        let mut img = im::RgbaImage::new((TILE_SIZE*&self.get_width()) as u32, (TILE_SIZE*&self.get_height()) as u32);
+        let mut img = im::RgbaImage::new((TILE_SIZE*self.get_width()) as u32, (TILE_SIZE*self.get_height()) as u32);
 
         let mut step = 0;
         for t in &self.tiles {
             if let Some(tile_img) = t.render() {
                 im::imageops::overlay(&mut img,
                     &tile_img,
-                    // TODO next: this is currently way wrong, figure out math to convert vector index to x, y coordinates
-                    ((step) * TILE_SIZE / &self.get_width()) as i64,
-                    (step * TILE_SIZE / &self.get_height()) as i64);
+                    ((step % self.get_width()) * TILE_SIZE) as i64,
+                    ((step / self.get_width()) * TILE_SIZE) as i64);
             } else {
                 continue;
             }
