@@ -71,7 +71,7 @@ fn main() {
         game.input.handle_event(&e);
 
         // todo: use monotonic clock to find exact time for sleep
-        thread::sleep(Duration::new(0, 2_000_000_000u32 / 60));
+        thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
     }
 }
 

@@ -1,5 +1,6 @@
 use crate::gameobject::GameObject;
 use crate::tile::{Tile, TILE_SIZE};
+use crate::game::{SCREEN_WIDTH, SCREEN_HEIGHT};
 use crate::collision::Rect;
 use crate::im::Pixel;
 
@@ -12,6 +13,35 @@ pub struct TileMap {
 impl TileMap {
     pub fn new(width: usize) -> Self {
         // test data for tiles, todo: pass in
+        let bordered_tile = Tile::new(|| {
+            let mut img = im::RgbaImage::new(TILE_SIZE as u32, TILE_SIZE as u32);
+
+                for x in 0..TILE_SIZE as u32 - 1 {
+                    for y in 0..TILE_SIZE as u32 - 1 {
+                        img.put_pixel(x, y, im::Rgb([255, 255, 255]).to_rgba());
+                    }
+                }
+                for x in 0..TILE_SIZE as u32 {
+                    img.put_pixel(x, 0, im::Rgb([0, 0, 0]).to_rgba());
+                }
+                for y in 0..TILE_SIZE as u32 {
+                    img.put_pixel(0, y, im::Rgb([0, 0, 0]).to_rgba());
+                }
+
+                img
+        }, false);
+
+        let black_square = Tile::new(|| {
+            let mut img = im::RgbaImage::new(TILE_SIZE as u32, TILE_SIZE as u32);
+
+            for x in 0..TILE_SIZE as u32 {
+                for y in 0..TILE_SIZE as u32 {
+                    img.put_pixel(x, y, im::Rgb([0, 0, 0]).to_rgba());
+                }
+            }
+            img
+        }, true);
+
         let tiles = vec![
             // cross
             Tile::new(|| {
@@ -24,18 +54,9 @@ impl TileMap {
                     }
                 }
                 img
-            }, true),
-            // black square
-            Tile::new(|| {
-                let mut img = im::RgbaImage::new(TILE_SIZE as u32, TILE_SIZE as u32);
-
-                for x in 0..TILE_SIZE as u32 {
-                    for y in 0..TILE_SIZE as u32 {
-                        img.put_pixel(x, y, im::Rgb([0, 0, 0]).to_rgba());
-                    }
-                }
-                img
-            }, false)
+            }, false), bordered_tile.clone(),
+            bordered_tile.clone(), bordered_tile.clone(), bordered_tile.clone(), bordered_tile.clone(),
+            black_square.clone(), black_square.clone(), black_square.clone(), black_square.clone()
         ];
 
         if tiles.len() % width != 0 {
@@ -82,9 +103,17 @@ impl GameObject for TileMap {
     }
 
     fn position(&self) -> Option<Rect> {
-        return Some(Rect{x: 50.0, y: 50.0,
+        /*return Some(Rect{x: 50.0, y: 50.0,
             w: (self.get_width() * TILE_SIZE) as f64,
-            h: (self.get_height() * TILE_SIZE) as f64});
+            h: (self.get_height() * TILE_SIZE) as f64});*/
+
+        // for now, assume one tilemap over size of screen
+        Some(Rect{
+            x: 0.0,
+            y: 0.0,
+            w: SCREEN_WIDTH as f64,
+            h: SCREEN_HEIGHT as f64
+        })
     }
 
     fn update(&mut self) {}

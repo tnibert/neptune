@@ -18,7 +18,7 @@ impl Game {
     pub fn new() -> Self {
         let player = Box::new(Player::new());
 
-        let mytilemap = Box::new(TileMap::new(1));
+        let mytilemap = Box::new(TileMap::new(2));
 
         // setup subscriptions
         let mut input = Input::new();
