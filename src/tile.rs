@@ -1,7 +1,7 @@
 use crate::gameobject::GameObject;
 use crate::collision::Rect;
 
-pub const TILE_SIZE: usize = 32;       // all tiles are square
+pub const TILE_SIZE: u32 = 32;       // all tiles are square
 
 /*
 A key question is whether Tile should know if it is permeable.
@@ -11,7 +11,7 @@ game, I think the answer is yes at this stage.
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]
 pub struct Tile {
-    size: usize,                      // size of one side of square
+    size: u32,                      // size of one side of square
     image: im::RgbaImage,
     permeable: bool
 }

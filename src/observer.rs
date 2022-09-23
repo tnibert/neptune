@@ -96,6 +96,7 @@ impl Observable {
 
 // unit tests
 // todo: update to reflect actual API when API becomes more stable
+/*
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -104,7 +105,7 @@ mod tests {
         counter: i32
     }
 
-    impl Observer for ObserverState {
+    impl Listener for ObserverState {
         fn receive(&mut self, e: &Event) {
             println!("Event received from {}: {}", e.source.name, e.name);
             self.counter = self.counter + 1;
@@ -159,7 +160,7 @@ mod tests {
 
         println!("{}, {}", mystate1.borrow().counter, mystate2.borrow().counter);
     }
-}
+}*/
 
 // notes
 // mem::replace() can swap values of same type

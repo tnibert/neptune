@@ -4,6 +4,8 @@ use crate::game::{SCREEN_WIDTH, SCREEN_HEIGHT};
 use crate::collision::Rect;
 use crate::im::Pixel;
 
+// todo: remove unnecessary casts to u32
+
 pub struct TileMap {
     tiles: Vec<Tile>,
     width: usize            // width in terms of number of tiles
@@ -42,21 +44,24 @@ impl TileMap {
             img
         }, true);
 
-        let tiles = vec![
-            // cross
-            Tile::new(|| {
-                let mut img = im::RgbaImage::new(TILE_SIZE as u32, TILE_SIZE as u32);
+        let cross = Tile::new(|| {
+            let mut img = im::RgbaImage::new(TILE_SIZE as u32, TILE_SIZE as u32);
 
-                for x in 15..=17 {
-                    for y in 8..24 {
-                        img.put_pixel(x, y, im::Rgb([255, 0, 0]).to_rgba());
-                        img.put_pixel(y, x, im::Rgb([255, 0, 0]).to_rgba());
-                    }
+            for x in 15..=17 {
+                for y in 8..24 {
+                    img.put_pixel(x, y, im::Rgb([255, 0, 0]).to_rgba());
+                    img.put_pixel(y, x, im::Rgb([255, 0, 0]).to_rgba());
                 }
-                img
-            }, false), bordered_tile.clone(),
-            bordered_tile.clone(), bordered_tile.clone(), bordered_tile.clone(), bordered_tile.clone(),
-            black_square.clone(), black_square.clone(), black_square.clone(), black_square.clone()
+            }
+            img
+        }, false);
+
+        let tiles = vec![
+            cross.clone(), bordered_tile.clone(),
+            bordered_tile.clone(), bordered_tile.clone(),
+            bordered_tile.clone(), bordered_tile.clone(),
+            black_square.clone(), black_square.clone(),
+            black_square.clone(), black_square.clone()
         ];
 
         if tiles.len() % width != 0 {
@@ -69,16 +74,37 @@ impl TileMap {
         }
     }
 
-    pub fn query_permeability_at_location(&self) -> bool {
+    /*
+    TODO: implement
+    Return true if all tiles intersecting the given Rect are permeable.
+    Otherwise, return false if any tiles intersecting are impermeable.
+    NB: note the assumption from position()
+    */
+    pub fn is_permeable_at_location(&self, r: &Rect) -> bool {
+        // get all tiles overlapped by the given rect
+        
+
+        // determine permeability
         true
     }
 
-    fn get_width(&self) -> usize {
-        return self.width;
+    fn get_width(&self) -> u32 {
+        return self.width as u32;
     }
 
-    fn get_height(&self) -> usize {
-        return self.tiles.len() / self.width;
+    fn get_height(&self) -> u32 {
+        return (self.tiles.len() / self.width) as u32;
+    }
+
+    /*
+    x: x coordinate in pixels from origin
+    y: y coordinate in pixels from origin
+    return array index of tile at given coordinates
+    */
+    fn get_tile_index_at_coordinate(&self, x: u32, y: u32) -> u32 {
+        let x1 = x / TILE_SIZE;        // tile number on the x
+        let y1 = y / TILE_SIZE;        // tile number on the y
+        return (y1 * self.get_width()) + (x1 % self.get_width());
     }
 }
 
@@ -117,4 +143,24 @@ impl GameObject for TileMap {
     }
 
     fn update(&mut self) {}
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_get_tile_index_at_coordinate() {
+        let tile_map = TileMap::new(2);
+
+        assert_eq!(0, tile_map.get_tile_index_at_coordinate(1, 1));
+        assert_eq!(1, tile_map.get_tile_index_at_coordinate(35, 1));
+        assert_eq!(2, tile_map.get_tile_index_at_coordinate(1, 35));
+        assert_eq!(3, tile_map.get_tile_index_at_coordinate(35, 35));
+        assert_eq!(4, tile_map.get_tile_index_at_coordinate(1, 70));
+        //assert_eq!(1, tile_map.get_tile_at_coordinate(1+(TILE_SIZE as u32),1));
+        //assert_eq!(2, tile_map.get_tile_at_coordinate(1,1+(TILE_SIZE as u32)));
+
+        // todo: test edge cases
+    }
 }
