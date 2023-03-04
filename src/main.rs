@@ -8,7 +8,7 @@ mod tile;
 mod tilemap;
 mod collision;
 mod game;
-
+mod background;
 
 use crate::graphics::{convert_renderable};
 use crate::game::{Game, SCREEN_WIDTH, SCREEN_HEIGHT};

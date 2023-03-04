@@ -1,7 +1,8 @@
+use crate::background::Background;
 use crate::player::Player;
 use crate::input::Input;
 use crate::gameobject::GameObject;
-use crate::tilemap::TileMap;
+//use crate::tilemap::TileMap;
 use crate::collision::Rect;
 
 use crate::im::Pixel;
@@ -18,7 +19,8 @@ impl Game {
     pub fn new() -> Self {
         let player = Box::new(Player::new());
 
-        let mytilemap = Box::new(TileMap::new(2));
+        //let mytilemap = Box::new(TileMap::new(2));
+        let bg = Box::new(Background::new("map.jpg"));
 
         // setup subscriptions
         let mut input = Input::new();
@@ -26,7 +28,7 @@ impl Game {
 
         Game {
             input: input,
-            gameobjects: vec![mytilemap, player]
+            gameobjects: vec![bg, player]
         }
     }
 }
