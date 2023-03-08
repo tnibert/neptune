@@ -3,6 +3,7 @@ use crate::sprite::Direction;
 use crate::observer::Listener;
 use crate::gameobject::GameObject;
 use crate::collision::Rect;
+use crate::game::{SCREEN_WIDTH, SCREEN_HEIGHT};
 
 use std::rc::Rc;
 
@@ -17,7 +18,12 @@ pub struct Player {
 impl Player {
     pub fn new() -> Player{
         Self {
-            spr: Sprite::new("reaper.png", PLAYER_SPEED),
+            spr: Sprite::new("reaper.png", PLAYER_SPEED, Rect {
+                x: (SCREEN_WIDTH / 2) as f64,
+                y: (SCREEN_HEIGHT / 2) as f64,
+                w: 100.0,
+                h: 100.0
+            }),         // todo: width and height are placeholders),
             observer: Rc::new(Listener::new())
         }
     }

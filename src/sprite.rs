@@ -55,14 +55,9 @@ pub struct Sprite {
 }
 
 impl Sprite {
-    pub fn new(spritesheet_fname: &str, speed: f64) -> Sprite {
+    pub fn new(spritesheet_fname: &str, speed: f64, initial_position: Rect) -> Sprite {
         Self {
-            position: Rect {
-                x: 0.0,
-                y: 0.0,
-                w: 100.0,
-                h: 100.0
-            },         // todo: width and height are placeholders
+            position: initial_position,
             frame: 0,
             frames: load_spritesheet(&load_image_asset_buffer(spritesheet_fname), SS_DOWN, SS_ACROSS),
             direction: Direction::Down,
