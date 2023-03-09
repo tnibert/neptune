@@ -79,3 +79,4 @@ fn main() {
 // This pattern is a relatively easy way to implement optional/default arguments in Rust.
 //
 // copy_ex() is like copy() but with some more options
+// mem::replace() can swap values of same type

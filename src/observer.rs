@@ -2,24 +2,15 @@ use std::collections::HashMap;
 use std::cell::RefCell;
 use std::rc::Rc;
 
+/*
+ * Modified implementation of observer pattern for propogating events
+ */
+
 //#[derive(Debug, PartialEq, Eq, Hash, Clone)]
 pub struct Event <'a>{
     pub name: String,
     pub source: &'a Observable
 }
-
-/*impl Event {
-    /*fn new(name: String, source: &'a Observable <'a>) -> Event <'a> {
-        Self {
-            name: name,
-            source: source
-        }
-    }*/
-}*/
-
-/*pub trait Observer {
-    fn receive(&mut self, e: &Event);
-}*/
 
 pub struct Listener {
     // todo: hold entire Event in some way
@@ -47,7 +38,7 @@ impl Listener {
 
 pub struct Observable {
     name: String,
-    // idea: don't use an Observer object, map directly to a function/method/closure?
+    // idea: don't use a Listener object, map directly to a function/method/closure?
     subscribers: HashMap<String, Vec<Rc<Listener>>>
 }
 
@@ -81,7 +72,7 @@ impl Observable {
     // Notify all subscribers to the given Event
     pub fn notify(&self, evt_name: String) {
         let e = Event{name: evt_name.clone(),
-                      source: self};
+                             source: self};
         match self.subscribers.get(&evt_name) {
             Some(to_notify) => {
                 // immutable iteration
@@ -95,72 +86,26 @@ impl Observable {
 }
 
 // unit tests
-// todo: update to reflect actual API when API becomes more stable
-/*
+// run with 'cargo test -- --nocapture' to see println! output
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    struct ObserverState {
-        counter: i32
-    }
-
-    impl Listener for ObserverState {
-        fn receive(&mut self, e: &Event) {
-            println!("Event received from {}: {}", e.source.name, e.name);
-            self.counter = self.counter + 1;
-        }
-    }
-
     #[test]
-    fn test_subscribe() {
+    fn test_integration() {
         let mut obsable = Observable::new("my_observable".to_string());
-        let mystate1 = RefCell::new(ObserverState{counter: 0});
+        let l1 = Rc::new(Listener::new());
+        let l2 = Rc::new(Listener::new());
 
-        obsable.notify("test_event".to_string());
-        assert_eq!(mystate1.borrow().counter, 0);
-        obsable.subscribe("test_event".to_string(), &mystate1);
-        obsable.notify("test_event".to_string());
-        assert_eq!(mystate1.borrow().counter, 1);
-        obsable.notify("test_event".to_string());
-        assert_eq!(mystate1.borrow().counter, 2);
+        obsable.subscribe("test".to_string(), l1.clone());
+        obsable.subscribe("test".to_string(), l2.clone());
+
+        obsable.notify("test".to_string());
+
+        let e1 = l1.poll_evt();
+        let e2 = l2.poll_evt();
+
+        assert_eq!(e1, ["test"]);
+        assert_eq!(e2, ["test"]);
     }
-
-    #[test]
-    fn test_unsubscribe() {
-        let mut obsable = Observable::new("my_observable".to_string());
-        let mystate1 = RefCell::new(ObserverState{counter: 0});
-
-        obsable.subscribe("test_event".to_string(), &mystate1);
-        obsable.notify("test_event".to_string());
-        assert_eq!(mystate1.borrow().counter, 1);
-        obsable.unsubscribe("test_event".to_string(), &mystate1);
-        obsable.notify("test_event".to_string());
-        assert_eq!(mystate1.borrow().counter, 1);
-    }
-
-
-    // run with 'cargo test -- --nocapture' to see println! output
-    #[test]
-    fn test_observer_integration() {
-        let mut obsable = Observable::new("my_observable".to_string());
-
-        let mystate1 = RefCell::new(ObserverState{counter: 0});
-        let mystate2 = RefCell::new(ObserverState{counter: 0});
-
-        obsable.subscribe("test_event".to_string(), &mystate1);
-        obsable.subscribe("test_event".to_string(), &mystate2);
-        obsable.subscribe("bam".to_string(), &mystate2);
-
-        obsable.notify("test_event".to_string());
-        obsable.notify("bam".to_string());
-
-        obsable.unsubscribe("test_event".to_string(), &mystate2);
-        obsable.notify("test_event".to_string());
-
-        println!("{}, {}", mystate1.borrow().counter, mystate2.borrow().counter);
-    }
-}*/
-
-// notes
-// mem::replace() can swap values of same type
+}
