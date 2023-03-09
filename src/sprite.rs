@@ -25,7 +25,6 @@ fn load_spritesheet(img: &im::RgbaImage, rows: usize, columns: usize) -> HashMap
     let mut index = 0;
     for y in 0..rows {
         for x in 0..columns {
-            //println!("{}, {}", x, y);
             let frame_x_start = x * SPRITE_FRAME_W;
             let frame_y_start = y * SPRITE_FRAME_H;
             let cropped = im::imageops::crop_imm(img, frame_x_start as u32,
@@ -83,11 +82,16 @@ impl Sprite {
             },
         }
         
-        self.direction = d;
+        self.set_facing(d);
     }
 
     pub fn current_frame(&self) -> &im::RgbaImage {
         return &self.frames.get(&self.direction).unwrap()[self.frame];
+    }
+
+    /* Set the direction the sprite is facing */
+    pub fn set_facing(&mut self, d: Direction) {
+        self.direction = d;
     }
 }
 
@@ -112,6 +116,5 @@ impl GameObject for Sprite {
             self.frame_change_count = 0;
         }
         self.frame_change_count += 1;
-        //println!("{:?}", self.frame);
     }
 }

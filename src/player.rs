@@ -23,7 +23,7 @@ impl Player {
                 y: (SCREEN_HEIGHT / 2) as f64,
                 w: 100.0,
                 h: 100.0
-            }),         // todo: width and height are placeholders),
+            }),         // todo: width and height are placeholders
             observer: Rc::new(Listener::new())
         }
     }
@@ -42,16 +42,16 @@ impl GameObject for Player {
         for e in self.observer.poll_evt() {
             match e.as_str() {
                 "up" => {
-                    self.spr.movespr(Direction::Up);
+                    self.spr.set_facing(Direction::Up);
                 },
                 "down" => {
-                    self.spr.movespr(Direction::Down);
+                    self.spr.set_facing(Direction::Down);
                 },
                 "left" => {
-                    self.spr.movespr(Direction::Left);
+                    self.spr.set_facing(Direction::Left);
                 },
                 "right" => {
-                    self.spr.movespr(Direction::Right);
+                    self.spr.set_facing(Direction::Right);
                 },
                 _ => ()
             }

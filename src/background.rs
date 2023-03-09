@@ -6,32 +6,43 @@ use crate::game::{SCREEN_WIDTH, SCREEN_HEIGHT};
 
 use std::rc::Rc;
 
+const STEP: u32 = 3;
+
 pub struct Background {
     full_image: im::RgbaImage,
-    //pub observer: Rc<Listener>
+    pub observer: Rc<Listener>,
+    crop_corner_x: u32,
+    crop_corner_y: u32
 }
 
 impl Background {
     pub fn new(fname: &str) -> Self {
         Self {
-            full_image: load_image_asset_buffer(fname)
+            full_image: load_image_asset_buffer(fname),
+            observer: Rc::new(Listener::new()),
+            crop_corner_x: 0,
+            crop_corner_y: 0
         }
     }
 }
 
 impl GameObject for Background {
 
-    /* clip the background to fit current window based
+    /* 
+     * clip the background to fit current window based
      * on position
      */
     fn render(&self) -> Option<im::RgbaImage> {
-        let cropped = im::imageops::crop_imm(&self.full_image, 0,
-                      0,
+        let cropped = im::imageops::crop_imm(&self.full_image, self.crop_corner_x,
+                      self.crop_corner_y,
                       SCREEN_WIDTH as u32,
                       SCREEN_HEIGHT as u32).to_image();
         return Some(cropped);
     }
 
+    /*
+     * We always position at (0,0) to draw over whole screen
+     */
     fn position(&self) -> Option<Rect> {
         return Some(Rect {
             x: 0.0,
@@ -41,23 +52,33 @@ impl GameObject for Background {
         });
     }
 
+    // todo: if the player reaches end of screen, player should leave the center
+    // and be able to walk to edge of map
     fn update(&mut self) {
-        /*for e in self.observer.poll_evt() {
+        for e in self.observer.poll_evt() {
             match e.as_str() {
                 "up" => {
-                    //self.spr.movespr(Direction::Up);
+                    if self.crop_corner_y >= STEP {
+                        self.crop_corner_y -= STEP;
+                    }
                 },
                 "down" => {
-                    //self.spr.movespr(Direction::Down);
+                    if self.crop_corner_y <= self.full_image.height() - STEP {
+                        self.crop_corner_y += STEP;
+                    }
                 },
                 "left" => {
-                    //self.spr.movespr(Direction::Left);
+                    if self.crop_corner_x >= STEP {
+                        self.crop_corner_x -= STEP;
+                    }
                 },
                 "right" => {
-                    //self.spr.movespr(Direction::Right);
+                    if self.crop_corner_x <= self.full_image.width() - STEP {
+                        self.crop_corner_x += STEP;
+                    }
                 },
                 _ => ()
             }
-        }*/
+        }
     }
 }

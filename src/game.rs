@@ -5,7 +5,7 @@ use crate::gameobject::GameObject;
 //use crate::tilemap::TileMap;
 use crate::collision::Rect;
 
-use crate::im::Pixel;
+//use crate::im::Pixel;
 
 pub const SCREEN_WIDTH: u32 = 640;
 pub const SCREEN_HEIGHT: u32 = 480;
@@ -25,6 +25,7 @@ impl Game {
         // setup subscriptions
         let mut input = Input::new();
         input.subscribe(player.observer.clone(), vec!["up", "down", "left", "right"]);
+        input.subscribe(bg.observer.clone(), vec!["up", "down", "left", "right"]);
 
         Game {
             input: input,
@@ -40,11 +41,11 @@ impl GameObject for Game {
 
         // clear screen
         // todo: find a more efficient call to do this
-        for x in 0..SCREEN_WIDTH {
+        /*for x in 0..SCREEN_WIDTH {
             for y in 0..SCREEN_HEIGHT {
                 screen_img.put_pixel(x, y, im::Rgb([255, 255, 255]).to_rgba());
             }
-        }
+        }*/
 
         for g in &self.gameobjects {
             if let Some(img) = g.render() {
