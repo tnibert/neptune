@@ -1,6 +1,5 @@
 use crate::observer::{Observable, Listener};
-use crate::piston_window::PressEvent;
-use crate::piston_window::ReleaseEvent;
+use piston::input::*;
 use std::collections::BTreeSet;
 use std::rc::Rc;
 
@@ -24,14 +23,14 @@ impl Input {
     }
 
     // todo: what is a good name for this function?
-    pub fn handle_event(&mut self, e: &piston_window::Event) {
+    pub fn handle_event(&mut self, e: &Event) {
         // key pressed down
-        if let Some(piston_window::Button::Keyboard(k)) = e.press_args() {
+        if let Some(Button::Keyboard(k)) = e.press_args() {
             self.keys_down.insert(k);
         }
 
         // key released
-        if let Some(piston_window::Button::Keyboard(k)) = e.release_args() {
+        if let Some(Button::Keyboard(k)) = e.release_args() {
             self.keys_down.remove(&k);
         }
 

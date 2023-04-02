@@ -1,10 +1,11 @@
-use crate::graphics::load_image_asset_buffer;
+use crate::imgload::load_image_asset_buffer;
 use crate::observer::Listener;
 use crate::gameobject::GameObject;
 use crate::collision::Rect;
 use crate::game::{SCREEN_WIDTH, SCREEN_HEIGHT};
 
 use std::rc::Rc;
+use std::time::Instant;
 
 const STEP: u32 = 3;
 
@@ -33,10 +34,13 @@ impl GameObject for Background {
      * on position
      */
     fn render(&self) -> Option<im::RgbaImage> {
+        let start = Instant::now();
         let cropped = im::imageops::crop_imm(&self.full_image, self.crop_corner_x,
                       self.crop_corner_y,
                       SCREEN_WIDTH as u32,
                       SCREEN_HEIGHT as u32).to_image();
+        let duration = start.elapsed();
+        println!("bg render: {:?}", duration);
         return Some(cropped);
     }
 

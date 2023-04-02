@@ -4,7 +4,7 @@ use crate::input::Input;
 use crate::gameobject::GameObject;
 //use crate::tilemap::TileMap;
 use crate::collision::Rect;
-
+use std::time::Instant;
 //use crate::im::Pixel;
 
 pub const SCREEN_WIDTH: u32 = 640;
@@ -39,24 +39,21 @@ impl GameObject for Game {
     fn render(&self) -> Option<im::RgbaImage> {
         let mut screen_img = im::RgbaImage::new(SCREEN_WIDTH, SCREEN_HEIGHT);
 
-        // clear screen
-        // todo: find a more efficient call to do this
-        /*for x in 0..SCREEN_WIDTH {
-            for y in 0..SCREEN_HEIGHT {
-                screen_img.put_pixel(x, y, im::Rgb([255, 255, 255]).to_rgba());
-            }
-        }*/
-
         for g in &self.gameobjects {
+            
             if let Some(img) = g.render() {
                 if let Some(pos) = g.position() {
+                    let start = Instant::now();
                     im::imageops::overlay(&mut screen_img, &img, pos.x as i64, pos.y as i64);
+                    let duration = start.elapsed();
+                    println!("overlay: {:?}", duration);
                 } else {
                     continue;
                 }
             } else {
                 continue;
             }
+            
         }
 
         return Some(screen_img);

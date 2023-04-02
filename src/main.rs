@@ -1,6 +1,6 @@
 mod observer;
 mod sprite;
-mod graphics;
+mod imgload;
 mod player;
 mod input;
 mod gameobject;
@@ -10,62 +10,65 @@ mod collision;
 mod game;
 mod background;
 
-use crate::graphics::{convert_renderable};
+extern crate piston;
+extern crate graphics;
+extern crate opengl_graphics;
+extern crate sdl2_window;
+extern crate image as im;
+
 use crate::game::{Game, SCREEN_WIDTH, SCREEN_HEIGHT};
 use crate::gameobject::GameObject;
 
+use piston::window::WindowSettings;
+use piston::event_loop::*;
+use piston::input::*;
+use sdl2_window::Sdl2Window;
+use opengl_graphics::*;
+use graphics::*;
 //use std::{thread, time::Duration};
-
-extern crate piston_window;
-//use crate::piston_window::Transformed;
-use crate::piston_window::RenderEvent;
-use crate::piston_window::UpdateEvent;
-use piston_window::WindowSettings;
-
-extern crate image as im;
 
 /*
 Looking to create a town that the character can move through
 and interact with.
 */
 
+
 fn main() {
     let mut game = Game::new();
 
-    let mut window: piston_window::PistonWindow =
-        WindowSettings::new("Prototype", [SCREEN_WIDTH, SCREEN_HEIGHT])
+    let opengl = OpenGL::V3_2;
+    let mut window: Sdl2Window = WindowSettings::new("Prototype", [SCREEN_WIDTH, SCREEN_HEIGHT])
         .exit_on_esc(true)
-        .vsync(true)
-        .build().unwrap();
+        .graphics_api(opengl)
+        .build()
+        .unwrap();
 
-    let mut texture_context = window.create_texture_context();
+    let mut gl = GlGraphics::new(opengl);
+    let mut events = Events::new(EventSettings::new());
 
-    let mut events = piston_window::Events::new(piston_window::EventSettings::new());
     while let Some(e) = events.next(&mut window) {
-        // rendering
-        if let Some(_r) = e.render_args() {
-
-            // clear the window
-            window.draw_2d(&e, |_c, g, _| {
-                piston_window::clear([1.0; 4], g); // Clear to white
-            });
-
-            // draw the screen
-            window.draw_2d(&e, |c, g, _| {
-                //let transform = c.transform.trans(0.0, 0.0);
-                let out = convert_renderable(&game.render().unwrap(), &mut texture_context);
-                piston_window::image(&out, c.transform, g);
-            });
-        }
+        // input handling
+        // todo: decouple from piston
+        game.input.handle_event(&e);
 
         // game state update
         if let Some(_u) = e.update_args() {
             game.update();
         }
 
-        // input handling
-        // todo: decouple from piston
-        game.input.handle_event(&e);
+        // rendering
+        if let Some(args) = e.render_args() {
+
+            let frame = Texture::from_image(&game.render().unwrap(),
+                                       &TextureSettings::new());
+
+            gl.draw(args.viewport(), |c, g| {
+                let transform = c.transform.trans(0.0, 0.0);
+
+                clear([1.0; 4], g);
+                image(&frame, transform, g);
+            });
+        }
 
         // todo: use monotonic clock to find exact time for sleep
         //thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
@@ -80,3 +83,5 @@ fn main() {
 //
 // copy_ex() is like copy() but with some more options
 // mem::replace() can swap values of same type
+//
+// input example: https://github.com/PistonDevelopers/piston-examples/blob/master/examples/user_input/src/main.rs
