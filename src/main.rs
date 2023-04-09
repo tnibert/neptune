@@ -25,13 +25,9 @@ use piston::input::*;
 use sdl2_window::Sdl2Window;
 use opengl_graphics::*;
 use graphics::*;
-//use std::{thread, time::Duration};
+use std::{thread, time::Duration};
 
-/*
-Looking to create a town that the character can move through
-and interact with.
-*/
-
+const FRAME_RATE: u32 = 45;
 
 fn main() {
     let mut game = Game::new();
@@ -70,8 +66,10 @@ fn main() {
             });
         }
 
-        // todo: use monotonic clock to find exact time for sleep
-        //thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
+        // todo:
+        // use monotonic clock to find exact time for sleep
+        // abstract time tracking
+        thread::sleep(Duration::new(0, 1_000_000_000u32 / FRAME_RATE));
     }
 }
 
