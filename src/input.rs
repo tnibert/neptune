@@ -22,7 +22,7 @@ impl Input {
         }
     }
 
-    // todo: what is a good name for this function?
+    // todo: decouple input from piston
     pub fn handle_event(&mut self, e: &Event) {
         // key pressed down
         if let Some(Button::Keyboard(k)) = e.press_args() {

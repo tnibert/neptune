@@ -2,13 +2,12 @@ use crate::background::Background;
 use crate::player::Player;
 use crate::input::Input;
 use crate::gameobject::GameObject;
-//use crate::tilemap::TileMap;
 use crate::collision::Rect;
 use std::time::Instant;
-//use crate::im::Pixel;
 
 pub const SCREEN_WIDTH: u32 = 640;
 pub const SCREEN_HEIGHT: u32 = 480;
+pub const FRAME_RATE: u32 = 45;
 
 pub struct Game {
     pub input: Input,

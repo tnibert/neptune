@@ -9,6 +9,8 @@ mod tilemap;
 mod collision;
 mod game;
 mod background;
+mod platform;
+mod desktopplatform;
 
 extern crate piston;
 extern crate graphics;
@@ -16,61 +18,14 @@ extern crate opengl_graphics;
 extern crate sdl2_window;
 extern crate image as im;
 
-use crate::game::{Game, SCREEN_WIDTH, SCREEN_HEIGHT};
-use crate::gameobject::GameObject;
-
-use piston::window::WindowSettings;
-use piston::event_loop::*;
-use piston::input::*;
-use sdl2_window::Sdl2Window;
-use opengl_graphics::*;
-use graphics::*;
-use std::{thread, time::Duration};
-
-const FRAME_RATE: u32 = 45;
+use crate::game::Game;
+use crate::desktopplatform::DesktopPlatform;
+use crate::platform::Platform;
 
 fn main() {
     let mut game = Game::new();
-
-    let opengl = OpenGL::V3_2;
-    let mut window: Sdl2Window = WindowSettings::new("Prototype", [SCREEN_WIDTH, SCREEN_HEIGHT])
-        .exit_on_esc(true)
-        .graphics_api(opengl)
-        .build()
-        .unwrap();
-
-    let mut gl = GlGraphics::new(opengl);
-    let mut events = Events::new(EventSettings::new());
-
-    while let Some(e) = events.next(&mut window) {
-        // input handling
-        // todo: decouple from piston
-        game.input.handle_event(&e);
-
-        // game state update
-        if let Some(_u) = e.update_args() {
-            game.update();
-        }
-
-        // rendering
-        if let Some(args) = e.render_args() {
-
-            let frame = Texture::from_image(&game.render().unwrap(),
-                                       &TextureSettings::new());
-
-            gl.draw(args.viewport(), |c, g| {
-                let transform = c.transform.trans(0.0, 0.0);
-
-                clear([1.0; 4], g);
-                image(&frame, transform, g);
-            });
-        }
-
-        // todo:
-        // use monotonic clock to find exact time for sleep
-        // abstract time tracking
-        thread::sleep(Duration::new(0, 1_000_000_000u32 / FRAME_RATE));
-    }
+    let mut pf = DesktopPlatform::new();
+    pf.gameloop(&mut game);
 }
 
 
