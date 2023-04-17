@@ -6,6 +6,10 @@ edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[lib]
+name = "mercurylib"
+path = "src/lib.rs"
+
 [dependencies]
 piston_window = "0.123.0"
 find_folder = "0.3.0"

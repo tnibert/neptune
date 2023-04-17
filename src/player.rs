@@ -16,7 +16,7 @@ pub struct Player {
 }
 
 impl Player {
-    pub fn new() -> Player{
+    pub fn new() -> Player {
         Self {
             spr: Sprite::new("reaper.png", PLAYER_SPEED, Rect {
                 x: (SCREEN_WIDTH / 2) as f64,

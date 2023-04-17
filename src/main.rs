@@ -1,26 +1,8 @@
-mod observer;
-mod sprite;
-mod imgload;
-mod player;
-mod input;
-mod gameobject;
-mod tile;
-mod tilemap;
-mod collision;
-mod game;
-mod background;
-mod platform;
-mod desktopplatform;
+extern crate mercurylib;
 
-extern crate piston;
-extern crate graphics;
-extern crate opengl_graphics;
-extern crate sdl2_window;
-extern crate image as im;
-
-use crate::game::Game;
-use crate::desktopplatform::DesktopPlatform;
-use crate::platform::Platform;
+use mercurylib::game::Game;
+use mercurylib::desktopplatform::DesktopPlatform;
+use mercurylib::platform::Platform;
 
 fn main() {
     let mut game = Game::new();
