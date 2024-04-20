@@ -6,6 +6,10 @@ pub struct Rect {
     pub h: f64          // height
 }
 
+pub fn new_point(x: f64, y: f64) -> Rect {
+    Rect { x: x, y: y, w: 0.0, h: 0.0 }
+}
+
 /*
 Detect overlapping rectangles
 :param rect1:

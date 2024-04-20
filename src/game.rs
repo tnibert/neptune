@@ -1,8 +1,10 @@
 use crate::background::Background;
+use crate::npc::NPC;
 use crate::player::Player;
 use crate::input::Input;
 use crate::gameobject::GameObject;
 use crate::collision::Rect;
+use crate::sprite::Direction;
 use std::time::Instant;
 
 pub const SCREEN_WIDTH: u32 = 640;
@@ -17,6 +19,7 @@ pub struct Game {
 impl Game {
     pub fn new() -> Self {
         let player = Box::new(Player::new());
+        let npc = Box::new(NPC::new(Direction::Right));
 
         //let mytilemap = Box::new(TileMap::new(2));
         let bg = Box::new(Background::new("map.jpg"));
@@ -25,10 +28,11 @@ impl Game {
         let mut input = Input::new();
         input.subscribe(player.observer.clone(), vec!["up", "down", "left", "right"]);
         input.subscribe(bg.observer.clone(), vec!["up", "down", "left", "right"]);
+        input.subscribe(npc.observer.clone(), vec!["up", "down", "left", "right"]);
 
         Game {
             input: input,
-            gameobjects: vec![bg, player]
+            gameobjects: vec![bg, player, npc]
         }
     }
 }
@@ -42,10 +46,10 @@ impl GameObject for Game {
             
             if let Some(img) = g.render() {
                 if let Some(pos) = g.position() {
-                    let start = Instant::now();
+                    //let start = Instant::now();
                     im::imageops::overlay(&mut screen_img, &img, pos.x as i64, pos.y as i64);
-                    let duration = start.elapsed();
-                    println!("overlay: {:?}", duration);
+                    //let duration = start.elapsed();
+                    //println!("overlay: {:?}", duration);
                 } else {
                     continue;
                 }

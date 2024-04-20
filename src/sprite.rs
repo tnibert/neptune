@@ -45,7 +45,7 @@ fn load_spritesheet(img: &im::RgbaImage, rows: usize, columns: usize) -> HashMap
 
 // handles renderable character
 pub struct Sprite {
-    position: Rect,
+    position: Rect,         // position is in screen coordinates
     frame: usize,
     frames: HashMap<Direction, Vec<im::RgbaImage>>,
     direction: Direction,
@@ -54,12 +54,12 @@ pub struct Sprite {
 }
 
 impl Sprite {
-    pub fn new(spritesheet_fname: &str, speed: f64, initial_position: Rect) -> Sprite {
+    pub fn new(spritesheet_fname: &str, speed: f64, initial_position: Rect, initial_direction: Direction) -> Sprite {
         Self {
             position: initial_position,
             frame: 0,
             frames: load_spritesheet(&load_image_asset_buffer(spritesheet_fname), SS_DOWN, SS_ACROSS),
-            direction: Direction::Down,
+            direction: initial_direction,
             speed: speed,
             frame_change_count: 0
         }
@@ -81,8 +81,6 @@ impl Sprite {
                 self.position.y += self.speed;
             },
         }
-        
-        self.set_facing(d);
     }
 
     pub fn current_frame(&self) -> &im::RgbaImage {
