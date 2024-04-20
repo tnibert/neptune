@@ -10,7 +10,6 @@ use crate::background::STEP;
 
 pub struct NPC {
     spr: Sprite,
-    world_coord: collision::Rect,
     pub observer: Rc<Listener>
 }
 
@@ -21,7 +20,6 @@ impl NPC {
                        STEP as f64,
             collision::new_point((SCREEN_WIDTH / 3) as f64, (SCREEN_HEIGHT / 3) as f64), 
                               initial_direction),
-            world_coord: collision::new_point((SCREEN_WIDTH / 3) as f64, (SCREEN_HEIGHT / 3) as f64),
             observer: Rc::new(Listener::new())
         }
     }

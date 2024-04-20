@@ -12,7 +12,6 @@ const PLAYER_SPEED: f64 = 1.0;
 // handles player, receives input signals
 pub struct Player {
     spr: Sprite,
-    world_coord: Rect,
     pub observer: Rc<Listener>
 }
 
@@ -20,7 +19,6 @@ impl Player {
     pub fn new() -> Player {
         Self {
             spr: Sprite::new("reaper.png", PLAYER_SPEED, new_point((SCREEN_WIDTH / 2) as f64,(SCREEN_HEIGHT / 2) as f64), Direction::Down),
-            world_coord: new_point((SCREEN_WIDTH / 2) as f64,(SCREEN_HEIGHT / 2) as f64),
             observer: Rc::new(Listener::new())
         }
     }
