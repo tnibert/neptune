@@ -7,13 +7,13 @@ use crate::game::{SCREEN_WIDTH, SCREEN_HEIGHT};
 use std::rc::Rc;
 //use std::time::Instant;
 
-pub const STEP: u32 = 3;
+pub const STEP: i32 = 3;
 
 pub struct Background {
     full_image: im::RgbaImage,
     pub observer: Rc<Listener>,
-    crop_corner_x: u32,
-    crop_corner_y: u32
+    crop_corner_x: i32,
+    crop_corner_y: i32
 }
 
 impl Background {
@@ -35,8 +35,9 @@ impl GameObject for Background {
      */
     fn render(&self) -> Option<im::RgbaImage> {
         //let start = Instant::now();
-        let cropped = im::imageops::crop_imm(&self.full_image, self.crop_corner_x,
-                      self.crop_corner_y,
+        let cropped = im::imageops::crop_imm(&self.full_image,
+                      self.crop_corner_x as u32,
+                      self.crop_corner_y as u32,
                       SCREEN_WIDTH as u32,
                       SCREEN_HEIGHT as u32).to_image();
         //let duration = start.elapsed();
@@ -62,24 +63,16 @@ impl GameObject for Background {
         for e in self.observer.poll_evt() {
             match e.as_str() {
                 "up" => {
-                    if self.crop_corner_y >= STEP {
-                        self.crop_corner_y -= STEP;
-                    }
+                    self.crop_corner_y -= STEP;
                 },
                 "down" => {
-                    if self.crop_corner_y <= self.full_image.height() - STEP {
-                        self.crop_corner_y += STEP;
-                    }
+                    self.crop_corner_y += STEP;
                 },
                 "left" => {
-                    if self.crop_corner_x >= STEP {
-                        self.crop_corner_x -= STEP;
-                    }
+                    self.crop_corner_x -= STEP;
                 },
                 "right" => {
-                    if self.crop_corner_x <= self.full_image.width() - STEP {
-                        self.crop_corner_x += STEP;
-                    }
+                    self.crop_corner_x += STEP;
                 },
                 _ => ()
             }
