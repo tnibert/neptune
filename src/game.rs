@@ -29,7 +29,6 @@ impl Game {
 
         //let mytilemap = Box::new(TileMap::new(2));
         let mut bg = Box::new(Background::new("map.jpg"));
-        // todo: this is not currently working with an arbitrary Rect
         bg.signals_out.subscribe(NeptuneEvent::VisibilityChange(Rect{x: 0, y: 0, w: 0, h: 0}), game_observer.clone());
 
         let mut input = Input::new();

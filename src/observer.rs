@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use core::cell::RefCell;
 use std::rc::Rc;
+use std::mem::{self, Discriminant};
 
 use crate::collision::Rect;
 
@@ -8,6 +9,7 @@ use crate::collision::Rect;
  * Modified implementation of observer pattern for propogating events
  */
 
+ // todo: need to implement an Eq such that all VisibilityChange are equal
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]
 pub enum NeptuneEvent {
     Left,
@@ -43,8 +45,8 @@ impl Listener {
 
 pub struct Observable {
     name: String,
-    // idea: don't use a Listener object, map directly to a function/method/closure?
-    subscribers: HashMap<NeptuneEvent, Vec<Rc<Listener>>>
+    // Discriminant allows us to ignore the content of the NeptuneEvent for purposes of HashMap key
+    subscribers: HashMap<Discriminant<NeptuneEvent>, Vec<Rc<Listener>>>
 }
 
 impl Observable {
@@ -58,10 +60,10 @@ impl Observable {
     // Subscribe an Observer to an event
     // idea: should explicitly prevent subscribing the same Observer twice?
     pub fn subscribe(&mut self, evt: NeptuneEvent, subscriber: Rc<Listener>) {
-        match self.subscribers.get_mut(&evt) {
+        match self.subscribers.get_mut(&mem::discriminant(&evt)) {
             Some(vec) => vec.push(subscriber),
             None => {
-                self.subscribers.insert(evt, vec![subscriber]);
+                self.subscribers.insert(mem::discriminant(&evt), vec![subscriber]);
             }
         };
     }
@@ -76,7 +78,7 @@ impl Observable {
 
     // Notify all subscribers to the given Event
     pub fn notify(&self, evt: NeptuneEvent) {
-        match self.subscribers.get(&evt) {
+        match self.subscribers.get(&mem::discriminant(&evt)) {
             Some(to_notify) => {
                 // immutable iteration
                 for s in to_notify {
