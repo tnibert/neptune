@@ -76,12 +76,11 @@ impl Observable {
 
     // Notify all subscribers to the given Event
     pub fn notify(&self, evt: NeptuneEvent) {
-        let e = Rc::new(evt);
-        match self.subscribers.get(&e) {
+        match self.subscribers.get(&evt) {
             Some(to_notify) => {
                 // immutable iteration
                 for s in to_notify {
-                    s.receive(&e);
+                    s.receive(&evt);
                 }
             },
             None => {}
