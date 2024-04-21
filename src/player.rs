@@ -35,7 +35,7 @@ impl GameObject for Player {
 
     fn update(&mut self) {
         for e in self.observer.poll_evt() {
-            match e.as_str() {
+            match e.name.as_str() {
                 "up" => {
                     self.spr.set_facing(Direction::Up);
                 },

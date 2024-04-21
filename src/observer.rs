@@ -6,15 +6,13 @@ use std::rc::Rc;
  * Modified implementation of observer pattern for propogating events
  */
 
-//#[derive(Debug, PartialEq, Eq, Hash, Clone)]
-pub struct Event <'a>{
+#[derive(Debug, PartialEq, Eq, Hash, Clone)]
+pub struct Event {
     pub name: String,
-    pub source: &'a Observable
 }
 
 pub struct Listener {
-    // todo: hold entire Event in some way
-    ledger: RefCell<Vec<String>>
+    ledger: RefCell<Vec<Event>>
 }
 
 impl Listener {
@@ -26,10 +24,10 @@ impl Listener {
 
     fn receive(&self, e: &Event) {
         // appends to end of ledger
-        self.ledger.borrow_mut().push(e.name.clone());
+        self.ledger.borrow_mut().push(e.clone());
     }
 
-    pub fn poll_evt(&self) -> Vec<String> {
+    pub fn poll_evt(&self) -> Vec<Event> {
         let ret = self.ledger.borrow().clone();
         self.ledger.borrow_mut().clear();
         return ret;
@@ -71,8 +69,7 @@ impl Observable {
     
     // Notify all subscribers to the given Event
     pub fn notify(&self, evt_name: String) {
-        let e = Event{name: evt_name.clone(),
-                             source: self};
+        let e = Rc::new(Event{name: evt_name.clone()});
         match self.subscribers.get(&evt_name) {
             Some(to_notify) => {
                 // immutable iteration
@@ -105,7 +102,7 @@ mod tests {
         let e1 = l1.poll_evt();
         let e2 = l2.poll_evt();
 
-        assert_eq!(e1, ["test"]);
-        assert_eq!(e2, ["test"]);
+        assert_eq!(e1[0].name, "test");
+        assert_eq!(e2[0].name, "test");
     }
 }

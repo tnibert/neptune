@@ -73,7 +73,7 @@ impl GameObject for Background {
     // and be able to walk to edge of map
     fn update(&mut self) {
         for e in self.observer.poll_evt() {
-            match e.as_str() {
+            match e.name.as_str() {
                 "up" => {
                     self.crop_corner_y -= STEP;
                     self.signals_out.notify("visibility_change".to_string())

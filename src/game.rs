@@ -81,7 +81,7 @@ impl GameObject for Game {
         }
 
         for e in self.observer.poll_evt() {
-            match e.as_str() {
+            match e.name.as_str() {
                 "visibility_change" => {
                     // todo: track bounding rect
                     println!("visibility");
