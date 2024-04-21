@@ -1,4 +1,4 @@
-use crate::observer::{Observable, Listener};
+use crate::observer::{Observable, Listener, NeptuneEvent};
 use piston::input::*;
 use std::collections::BTreeSet;
 use std::rc::Rc;
@@ -16,9 +16,9 @@ impl Input {
         }
     }
 
-    pub fn subscribe(&mut self, subscriber: Rc<Listener>, event_names: Vec<&str>) {
-        for en in event_names {
-            self.signals_out.subscribe(en.to_string(), subscriber.clone());
+    pub fn subscribe(&mut self, subscriber: Rc<Listener>, events: Vec<NeptuneEvent>) {
+        for en in events {
+            self.signals_out.subscribe(en, subscriber.clone());
         }
     }
 
@@ -37,16 +37,16 @@ impl Input {
         for k in &self.keys_down {
             match k {
                 piston_window::Key::Right => {
-                    self.signals_out.notify("right".to_string());
+                    self.signals_out.notify(NeptuneEvent::Right);
                 },
                 piston_window::Key::Left => {
-                    self.signals_out.notify("left".to_string());
+                    self.signals_out.notify(NeptuneEvent::Left);
                 },
                 piston_window::Key::Down => {
-                    self.signals_out.notify("down".to_string());
+                    self.signals_out.notify(NeptuneEvent::Down);
                 },
                 piston_window::Key::Up => {
-                    self.signals_out.notify("up".to_string());
+                    self.signals_out.notify(NeptuneEvent::Up);
                 }
                 _ => {},
             }

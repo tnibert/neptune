@@ -49,12 +49,12 @@ pub struct Sprite {
     frame: usize,
     frames: HashMap<Direction, Vec<im::RgbaImage>>,
     direction: Direction,
-    speed: f64,
+    speed: i64,
     frame_change_count: u32
 }
 
 impl Sprite {
-    pub fn new(spritesheet_fname: &str, speed: f64, initial_position: Rect, initial_direction: Direction) -> Sprite {
+    pub fn new(spritesheet_fname: &str, speed: i64, initial_position: Rect, initial_direction: Direction) -> Sprite {
         Self {
             position: initial_position,
             frame: 0,

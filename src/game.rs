@@ -1,6 +1,7 @@
 use crate::background::Background;
 use crate::npc::NPC;
 use crate::observer::Listener;
+use crate::observer::NeptuneEvent;
 use crate::player::Player;
 use crate::input::Input;
 use crate::gameobject::GameObject;
@@ -28,12 +29,13 @@ impl Game {
 
         //let mytilemap = Box::new(TileMap::new(2));
         let mut bg = Box::new(Background::new("map.jpg"));
-        bg.signals_out.subscribe("visibility_change".to_string(), game_observer.clone());
+        // todo: this is not currently working with an arbitrary Rect
+        bg.signals_out.subscribe(NeptuneEvent::VisibilityChange(Rect{x: 0, y: 0, w: 0, h: 0}), game_observer.clone());
 
         let mut input = Input::new();
-        input.subscribe(player.observer.clone(), vec!["up", "down", "left", "right"]);
-        input.subscribe(bg.observer.clone(), vec!["up", "down", "left", "right"]);
-        input.subscribe(npc.observer.clone(), vec!["up", "down", "left", "right"]);
+        input.subscribe(player.observer.clone(), vec![NeptuneEvent::Up, NeptuneEvent::Down, NeptuneEvent::Left, NeptuneEvent::Right]);
+        input.subscribe(bg.observer.clone(), vec![NeptuneEvent::Up, NeptuneEvent::Down, NeptuneEvent::Left, NeptuneEvent::Right]);
+        input.subscribe(npc.observer.clone(), vec![NeptuneEvent::Up, NeptuneEvent::Down, NeptuneEvent::Left, NeptuneEvent::Right]);
 
         Game {
             input: input,
@@ -72,7 +74,7 @@ impl GameObject for Game {
     }
 
     fn position(&self) -> Option<Rect> {
-        return Some(Rect{x: 0.0, y: 0.0, w: SCREEN_WIDTH as f64, h: SCREEN_HEIGHT as f64});
+        return Some(Rect{x: 0, y: 0, w: SCREEN_WIDTH as i64, h: SCREEN_HEIGHT as i64});
     }
 
     fn update(&mut self) {
@@ -81,8 +83,8 @@ impl GameObject for Game {
         }
 
         for e in self.observer.poll_evt() {
-            match e.name.as_str() {
-                "visibility_change" => {
+            match e {
+                NeptuneEvent::VisibilityChange(r) => {
                     // todo: track bounding rect
                     println!("visibility");
                 },

@@ -135,10 +135,10 @@ impl GameObject for TileMap {
 
         // for now, assume one tilemap over size of screen
         Some(Rect{
-            x: 0.0,
-            y: 0.0,
-            w: SCREEN_WIDTH as f64,
-            h: SCREEN_HEIGHT as f64
+            x: 0,
+            y: 0,
+            w: SCREEN_WIDTH as i64,
+            h: SCREEN_HEIGHT as i64
         })
     }
 

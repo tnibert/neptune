@@ -1,5 +1,5 @@
 use crate::imgload::load_image_asset_buffer;
-use crate::observer::{Listener, Observable};
+use crate::observer::{Listener, NeptuneEvent, Observable};
 use crate::gameobject::GameObject;
 use crate::collision::Rect;
 use crate::game::{SCREEN_WIDTH, SCREEN_HEIGHT};
@@ -7,14 +7,14 @@ use crate::game::{SCREEN_WIDTH, SCREEN_HEIGHT};
 use std::rc::Rc;
 //use std::time::Instant;
 
-pub const STEP: i32 = 3;
+pub const STEP: i64 = 3;
 
 pub struct Background {
     full_image: im::RgbaImage,
     pub observer: Rc<Listener>,
     pub signals_out: Observable,
-    crop_corner_x: i32,
-    crop_corner_y: i32
+    crop_corner_x: i64,
+    crop_corner_y: i64
 }
 
 impl Background {
@@ -31,10 +31,10 @@ impl Background {
     // return a rect of the current window in world coordinates
     pub fn window(&self) -> Rect {
         Rect {
-            x: self.crop_corner_x as f64,
-            y: self.crop_corner_y as f64,
-            w: SCREEN_WIDTH as f64,
-            h: SCREEN_HEIGHT as f64
+            x: self.crop_corner_x,
+            y: self.crop_corner_y,
+            w: SCREEN_WIDTH as i64,
+            h: SCREEN_HEIGHT as i64
         }
     }
 }
@@ -62,10 +62,10 @@ impl GameObject for Background {
      */
     fn position(&self) -> Option<Rect> {
         return Some(Rect {
-            x: 0.0,
-            y: 0.0,
-            w: SCREEN_WIDTH as f64,
-            h: SCREEN_HEIGHT as f64
+            x: 0,
+            y: 0,
+            w: SCREEN_WIDTH as i64,
+            h: SCREEN_HEIGHT as i64
         });
     }
 
@@ -73,22 +73,22 @@ impl GameObject for Background {
     // and be able to walk to edge of map
     fn update(&mut self) {
         for e in self.observer.poll_evt() {
-            match e.name.as_str() {
-                "up" => {
+            match e {
+                NeptuneEvent::Up => {
                     self.crop_corner_y -= STEP;
-                    self.signals_out.notify("visibility_change".to_string())
+                    self.signals_out.notify(NeptuneEvent::VisibilityChange(self.position().unwrap()))
                 },
-                "down" => {
+                NeptuneEvent::Down => {
                     self.crop_corner_y += STEP;
-                    self.signals_out.notify("visibility_change".to_string())
+                    self.signals_out.notify(NeptuneEvent::VisibilityChange(self.position().unwrap()))
                 },
-                "left" => {
+                NeptuneEvent::Left => {
                     self.crop_corner_x -= STEP;
-                    self.signals_out.notify("visibility_change".to_string())
+                    self.signals_out.notify(NeptuneEvent::VisibilityChange(self.position().unwrap()))
                 },
-                "right" => {
+                NeptuneEvent::Right => {
                     self.crop_corner_x += STEP;
-                    self.signals_out.notify("visibility_change".to_string())
+                    self.signals_out.notify(NeptuneEvent::VisibilityChange(self.position().unwrap()))
                 },
                 _ => ()
             }

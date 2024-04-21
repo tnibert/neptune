@@ -1,13 +1,13 @@
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone)]
 pub struct Rect {
-    pub x: f64,
-    pub y: f64,
-    pub w: f64,         // width
-    pub h: f64          // height
+    pub x: i64,
+    pub y: i64,
+    pub w: i64,         // width
+    pub h: i64          // height
 }
 
-pub fn new_point(x: f64, y: f64) -> Rect {
-    Rect { x: x, y: y, w: 0.0, h: 0.0 }
+pub fn new_point(x: i64, y: i64) -> Rect {
+    Rect { x: x, y: y, w: 0, h: 0 }
 }
 
 // provided world coordinates and a visibility window,
@@ -41,22 +41,22 @@ mod tests {
 
     #[test]
     fn test_convert_world_coord_to_screen_identity() {
-        let world_coord = Rect{x: 100.0, y: 100.0, w: 20.0, h: 20.0};
-        let window = Rect{x: 0.0, y: 0.0, w: 640.0, h: 480.0};
+        let world_coord = Rect{x: 100, y: 100, w: 20, h: 20};
+        let window = Rect{x: 0, y: 0, w: 640, h: 480};
 
         let test = convert_world_coord_to_screen_coord(world_coord, window);
 
-        assert_eq!(test, Rect{x: 100.0, y: 100.0, w: 20.0, h: 20.0});
+        assert_eq!(test, Rect{x: 100, y: 100, w: 20, h: 20});
     }
 
     #[test]
     fn test_convert_world_coord_to_screen_offset() {
-        let offset = 80.0;
-        let world_coord = Rect{x: 100.0, y: 100.0, w: 20.0, h: 20.0};
-        let window = Rect{x: 0.0+offset, y: 0.0+offset, w: 640.0+offset, h: 480.0+offset};
+        let offset = 80;
+        let world_coord = Rect{x: 100, y: 100, w: 20, h: 20};
+        let window = Rect{x: 0+offset, y: 0+offset, w: 640+offset, h: 480+offset};
 
         let test = convert_world_coord_to_screen_coord(world_coord, window);
 
-        assert_eq!(test, Rect{x: 100.0-offset, y: 100.0-offset, w: 20.0, h: 20.0});
+        assert_eq!(test, Rect{x: 100-offset, y: 100-offset, w: 20, h: 20});
     }
 }

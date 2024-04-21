@@ -1,13 +1,13 @@
 use crate::sprite::Sprite;
 use crate::sprite::Direction;
-use crate::observer::Listener;
+use crate::observer::{Listener, NeptuneEvent};
 use crate::gameobject::GameObject;
 use crate::collision::{Rect, new_point};
 use crate::game::{SCREEN_WIDTH, SCREEN_HEIGHT};
 
 use std::rc::Rc;
 
-const PLAYER_SPEED: f64 = 1.0;
+const PLAYER_SPEED: i64 = 1;
 
 // handles player, receives input signals
 pub struct Player {
@@ -18,7 +18,7 @@ pub struct Player {
 impl Player {
     pub fn new() -> Player {
         Self {
-            spr: Sprite::new("reaper.png", PLAYER_SPEED, new_point((SCREEN_WIDTH / 2) as f64,(SCREEN_HEIGHT / 2) as f64), Direction::Down),
+            spr: Sprite::new("reaper.png", PLAYER_SPEED, new_point((SCREEN_WIDTH / 2) as i64,(SCREEN_HEIGHT / 2) as i64), Direction::Down),
             observer: Rc::new(Listener::new())
         }
     }
@@ -35,17 +35,17 @@ impl GameObject for Player {
 
     fn update(&mut self) {
         for e in self.observer.poll_evt() {
-            match e.name.as_str() {
-                "up" => {
+            match e {
+                NeptuneEvent::Up => {
                     self.spr.set_facing(Direction::Up);
                 },
-                "down" => {
+                NeptuneEvent::Down => {
                     self.spr.set_facing(Direction::Down);
                 },
-                "left" => {
+                NeptuneEvent::Left => {
                     self.spr.set_facing(Direction::Left);
                 },
-                "right" => {
+                NeptuneEvent::Right => {
                     self.spr.set_facing(Direction::Right);
                 },
                 _ => ()
