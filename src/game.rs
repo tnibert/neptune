@@ -5,7 +5,7 @@ use crate::observer::NeptuneEvent;
 use crate::player::Player;
 use crate::input::Input;
 use crate::gameobject::GameObject;
-use crate::collision::Rect;
+use crate::collision::{Rect, convert_world_coord_to_screen_coord};
 use crate::sprite::Direction;
 use std::rc::Rc;
 //use std::time::Instant;
@@ -17,7 +17,8 @@ pub const FRAME_RATE: u32 = 45;
 pub struct Game {
     pub input: Input,
     gameobjects: Vec<Box<dyn GameObject>>,
-    observer: Rc<Listener>
+    observer: Rc<Listener>,
+    visiblescene: Rect
 }
 
 impl Game {
@@ -36,10 +37,13 @@ impl Game {
         input.subscribe(bg.observer.clone(), vec![NeptuneEvent::Up, NeptuneEvent::Down, NeptuneEvent::Left, NeptuneEvent::Right]);
         input.subscribe(npc.observer.clone(), vec![NeptuneEvent::Up, NeptuneEvent::Down, NeptuneEvent::Left, NeptuneEvent::Right]);
 
+        let visible_scene = bg.position().unwrap();
+
         Game {
             input: input,
             gameobjects: vec![bg, player, npc],
-            observer: game_observer
+            observer: game_observer,
+            visiblescene: visible_scene
         }
     }
 }
@@ -56,7 +60,11 @@ impl GameObject for Game {
                     //let start = Instant::now();
 
                     // todo: collision::convert_world_coord_to_screen_coord()
-                    im::imageops::overlay(&mut screen_img, &img, pos.x as i64, pos.y as i64);
+                    println!("pos {:?}", pos);
+                    println!("visible {:?}", self.visiblescene);
+                    let screen_pos = convert_world_coord_to_screen_coord(&pos, &self.visiblescene);
+                    println!("converted {:?}", screen_pos);
+                    im::imageops::overlay(&mut screen_img, &img, screen_pos.x as i64, screen_pos.y as i64);
 
                     //let duration = start.elapsed();
                     //println!("overlay: {:?}", duration);
@@ -84,8 +92,7 @@ impl GameObject for Game {
         for e in self.observer.poll_evt() {
             match e {
                 NeptuneEvent::VisibilityChange(r) => {
-                    // todo: track bounding rect
-                    println!("visibility");
+                    self.visiblescene = r;
                 },
                 _ => ()
             }

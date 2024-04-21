@@ -7,7 +7,6 @@ use crate::observer::Listener;
 use crate::gameobject::GameObject;
 use crate::game::{SCREEN_WIDTH, SCREEN_HEIGHT};
 use crate::collision;
-use crate::background::STEP;
 
 pub struct NPC {
     spr: Sprite,
@@ -18,7 +17,7 @@ impl NPC {
     pub fn new(initial_direction: Direction) -> NPC {
         Self {
             spr: Sprite::new("reaper.png", 
-                       STEP as i64,
+                       0,
             collision::new_point((SCREEN_WIDTH / 3) as i64, (SCREEN_HEIGHT / 3) as i64),
                               initial_direction),
             observer: Rc::new(Listener::new())
@@ -40,19 +39,6 @@ impl GameObject for NPC {
             match e {
                 NeptuneEvent::Talk => {
 
-                },
-                // todo: don't subscribe to all of these, have something emit a single signal with movement diff and direction attached
-                NeptuneEvent::Up => {
-                    self.spr.movespr(Direction::Down);
-                },
-                NeptuneEvent::Down => {
-                    self.spr.movespr(Direction::Up);
-                },
-                NeptuneEvent::Left => {
-                    self.spr.movespr(Direction::Right);
-                },
-                NeptuneEvent::Right => {
-                    self.spr.movespr(Direction::Left);
                 },
                 _ => ()
             }

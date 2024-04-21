@@ -7,7 +7,7 @@ use crate::game::{SCREEN_WIDTH, SCREEN_HEIGHT};
 
 use std::rc::Rc;
 
-const PLAYER_SPEED: i64 = 1;
+pub const PLAYER_SPEED: i64 = 3;
 
 // handles player, receives input signals
 pub struct Player {
@@ -38,15 +38,19 @@ impl GameObject for Player {
             match e {
                 NeptuneEvent::Up => {
                     self.spr.set_facing(Direction::Up);
+                    self.spr.movespr(Direction::Up)
                 },
                 NeptuneEvent::Down => {
                     self.spr.set_facing(Direction::Down);
+                    self.spr.movespr(Direction::Down)
                 },
                 NeptuneEvent::Left => {
                     self.spr.set_facing(Direction::Left);
+                    self.spr.movespr(Direction::Left)
                 },
                 NeptuneEvent::Right => {
                     self.spr.set_facing(Direction::Right);
+                    self.spr.movespr(Direction::Right)
                 },
                 _ => ()
             }

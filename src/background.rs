@@ -2,12 +2,13 @@ use crate::imgload::load_image_asset_buffer;
 use crate::observer::{Listener, NeptuneEvent, Observable};
 use crate::gameobject::GameObject;
 use crate::collision::Rect;
+use crate::player::PLAYER_SPEED;
 use crate::game::{SCREEN_WIDTH, SCREEN_HEIGHT};
 
 use std::rc::Rc;
 //use std::time::Instant;
 
-pub const STEP: i64 = 3;
+const STEP: i64 = PLAYER_SPEED;
 
 pub struct Background {
     full_image: im::RgbaImage,
@@ -76,19 +77,19 @@ impl GameObject for Background {
             match e {
                 NeptuneEvent::Up => {
                     self.crop_corner_y -= STEP;
-                    self.signals_out.notify(NeptuneEvent::VisibilityChange(self.position().unwrap()))
+                    self.signals_out.notify(NeptuneEvent::VisibilityChange(self.window()))
                 },
                 NeptuneEvent::Down => {
                     self.crop_corner_y += STEP;
-                    self.signals_out.notify(NeptuneEvent::VisibilityChange(self.position().unwrap()))
+                    self.signals_out.notify(NeptuneEvent::VisibilityChange(self.window()))
                 },
                 NeptuneEvent::Left => {
                     self.crop_corner_x -= STEP;
-                    self.signals_out.notify(NeptuneEvent::VisibilityChange(self.position().unwrap()))
+                    self.signals_out.notify(NeptuneEvent::VisibilityChange(self.window()))
                 },
                 NeptuneEvent::Right => {
                     self.crop_corner_x += STEP;
-                    self.signals_out.notify(NeptuneEvent::VisibilityChange(self.position().unwrap()))
+                    self.signals_out.notify(NeptuneEvent::VisibilityChange(self.window()))
                 },
                 _ => ()
             }

@@ -45,7 +45,7 @@ fn load_spritesheet(img: &im::RgbaImage, rows: usize, columns: usize) -> HashMap
 
 // handles renderable character
 pub struct Sprite {
-    position: Rect,         // position is in screen coordinates
+    position: Rect,         // position is in world coordinates
     frame: usize,
     frames: HashMap<Direction, Vec<im::RgbaImage>>,
     direction: Direction,
@@ -66,7 +66,6 @@ impl Sprite {
     }
 
     pub fn movespr(&mut self, d: Direction) {
-        // todo: bounds checking
         match d {
             Direction::Left => {
                 self.position.x -= self.speed;

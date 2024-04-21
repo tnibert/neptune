@@ -12,7 +12,7 @@ pub fn new_point(x: i64, y: i64) -> Rect {
 
 // provided world coordinates and a visibility window,
 // return the screen coordinates
-pub fn convert_world_coord_to_screen_coord(world_coord: Rect, window: Rect) -> Rect {
+pub fn convert_world_coord_to_screen_coord(world_coord: &Rect, window: &Rect) -> Rect {
     Rect{
         x: world_coord.x - window.x,
         y: world_coord.y - window.y,
@@ -44,7 +44,7 @@ mod tests {
         let world_coord = Rect{x: 100, y: 100, w: 20, h: 20};
         let window = Rect{x: 0, y: 0, w: 640, h: 480};
 
-        let test = convert_world_coord_to_screen_coord(world_coord, window);
+        let test = convert_world_coord_to_screen_coord(&world_coord, &window);
 
         assert_eq!(test, Rect{x: 100, y: 100, w: 20, h: 20});
     }
@@ -55,7 +55,7 @@ mod tests {
         let world_coord = Rect{x: 100, y: 100, w: 20, h: 20};
         let window = Rect{x: 0+offset, y: 0+offset, w: 640+offset, h: 480+offset};
 
-        let test = convert_world_coord_to_screen_coord(world_coord, window);
+        let test = convert_world_coord_to_screen_coord(&world_coord, &window);
 
         assert_eq!(test, Rect{x: 100-offset, y: 100-offset, w: 20, h: 20});
     }
