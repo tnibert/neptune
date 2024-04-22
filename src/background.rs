@@ -59,14 +59,15 @@ impl GameObject for Background {
     }
 
     /*
-     * We always position at (0,0) to draw over whole screen
+     * todo: This is janky, those width and height attributes are not correct
+     * but those values allow the program to function correctly.  Need to revisit.
      */
     fn position(&self) -> Option<Rect> {
         return Some(Rect {
-            x: 0,
-            y: 0,
-            w: SCREEN_WIDTH as i64,
-            h: SCREEN_HEIGHT as i64
+            x: self.crop_corner_x as i64,
+            y: self.crop_corner_y as i64,
+            w: self.crop_corner_x+SCREEN_WIDTH as i64,
+            h: self.crop_corner_y+SCREEN_HEIGHT as i64
         });
     }
 
