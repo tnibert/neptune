@@ -1,4 +1,5 @@
 use crate::background::Background;
+use crate::collision;
 use crate::npc::NPC;
 use crate::observer::Listener;
 use crate::observer::NeptuneEvent;
@@ -26,7 +27,7 @@ impl Game {
         let game_observer = Rc::new(Listener::new());
 
         let player = Box::new(Player::new());
-        let npc = Box::new(NPC::new(Direction::Right));
+        let npc = Box::new(NPC::new(Direction::Right, collision::new_point((SCREEN_WIDTH + 30) as i64, (SCREEN_HEIGHT + 30) as i64)));
 
         //let mytilemap = Box::new(TileMap::new(2));
         let mut bg = Box::new(Background::new("map.jpg"));
@@ -60,10 +61,10 @@ impl GameObject for Game {
                     //let start = Instant::now();
 
                     // todo: collision::convert_world_coord_to_screen_coord()
-                    println!("pos {:?}", pos);
-                    println!("visible {:?}", self.visiblescene);
+                    //println!("pos {:?}", pos);
+                    //println!("visible {:?}", self.visiblescene);
                     let screen_pos = convert_world_coord_to_screen_coord(&pos, &self.visiblescene);
-                    println!("converted {:?}", screen_pos);
+                    //println!("converted {:?}", screen_pos);
                     im::imageops::overlay(&mut screen_img, &img, screen_pos.x as i64, screen_pos.y as i64);
 
                     //let duration = start.elapsed();

@@ -1,11 +1,11 @@
 use std::rc::Rc;
 
+use crate::collision::Rect;
 use crate::observer::NeptuneEvent;
 use crate::sprite::Direction;
 use crate::sprite::Sprite;
 use crate::observer::Listener;
 use crate::gameobject::GameObject;
-use crate::game::{SCREEN_WIDTH, SCREEN_HEIGHT};
 use crate::collision;
 
 pub struct NPC {
@@ -14,12 +14,9 @@ pub struct NPC {
 }
 
 impl NPC {
-    pub fn new(initial_direction: Direction) -> NPC {
+    pub fn new(initial_direction: Direction, initial_position: Rect) -> NPC {
         Self {
-            spr: Sprite::new("reaper.png", 
-                       0,
-            collision::new_point((SCREEN_WIDTH / 3) as i64, (SCREEN_HEIGHT / 3) as i64),
-                              initial_direction),
+            spr: Sprite::new("reaper.png", 0, initial_position, initial_direction),
             observer: Rc::new(Listener::new())
         }
     }
