@@ -12,6 +12,7 @@ pub mod game;
 pub mod background;
 pub mod platform;
 pub mod desktopplatform;
+pub mod talkbubble;
 
 extern crate piston;
 extern crate graphics;

@@ -1,3 +1,4 @@
+// todo: wait a sec, a rect can't have negative width and height...
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]
 pub struct Rect {
     pub x: i64,
