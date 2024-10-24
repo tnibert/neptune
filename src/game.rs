@@ -27,7 +27,6 @@ impl Game {
     pub fn new() -> Self {
         let game_observer = Rc::new(Listener::new());
 
-        let player = Box::new(Player::new());
         let npc = Box::new(NPC::new(Direction::Right, collision::new_point((SCREEN_WIDTH + 30) as i64, (SCREEN_HEIGHT + 30) as i64)));
         let bubble = Box::new(TalkBubble::new());
 
@@ -36,10 +35,11 @@ impl Game {
         bg.signals_out.subscribe(NeptuneEvent::VisibilityChange(Rect{x: 0, y: 0, w: 0, h: 0}), game_observer.clone());
 
         // todo: do we need the Box::new() above?
+        let mut player = Box::new(Player::new(Rect{x: 0, y: 0, w: bg.width() as i64, h: bg.height() as i64}));
         let mut input = Input::new();
         input.subscribe(player.observer.clone(), vec![NeptuneEvent::Up, NeptuneEvent::Down, NeptuneEvent::Left, NeptuneEvent::Right]);
-        input.subscribe(bg.observer.clone(), vec![NeptuneEvent::Up, NeptuneEvent::Down, NeptuneEvent::Left, NeptuneEvent::Right]);
-        input.subscribe(npc.observer.clone(), vec![NeptuneEvent::Up, NeptuneEvent::Down, NeptuneEvent::Left, NeptuneEvent::Right]);
+        player.subscribe(bg.observer.clone(), vec![NeptuneEvent::Up, NeptuneEvent::Down, NeptuneEvent::Left, NeptuneEvent::Right]);
+        player.subscribe(npc.observer.clone(), vec![NeptuneEvent::Up, NeptuneEvent::Down, NeptuneEvent::Left, NeptuneEvent::Right]);
 
         let visible_scene = bg.position().unwrap();
 

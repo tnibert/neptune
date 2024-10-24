@@ -38,6 +38,14 @@ impl Background {
             h: SCREEN_HEIGHT as i64
         }
     }
+
+    pub fn width(&self) -> u32 {
+        return self.full_image.width()
+    }
+
+    pub fn height(&self) -> u32 {
+        return self.full_image.height()
+    }
 }
 
 impl GameObject for Background {
