@@ -41,6 +41,8 @@ impl Game {
         player.subscribe(bg.observer.clone(), vec![NeptuneEvent::Up, NeptuneEvent::Down, NeptuneEvent::Left, NeptuneEvent::Right]);
         player.subscribe(npc.observer.clone(), vec![NeptuneEvent::Up, NeptuneEvent::Down, NeptuneEvent::Left, NeptuneEvent::Right]);
 
+        bg.signals_out.subscribe(NeptuneEvent::VisibilityChange(Rect{x: 0, y: 0, w: 0, h: 0}), player.observer.clone());
+
         let visible_scene = bg.position().unwrap();
 
         Game {

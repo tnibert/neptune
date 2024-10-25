@@ -1,6 +1,7 @@
 use crate::imgload::*;
 use crate::gameobject::GameObject;
-use crate::collision::Rect;
+use crate::collision::{Rect, convert_world_coord_to_screen_coord};
+use crate::game::{SCREEN_WIDTH, SCREEN_HEIGHT};
 use std::collections::HashMap;
 
 // todo: pass these in as parameters or determine from file
@@ -45,41 +46,74 @@ fn load_spritesheet(img: &im::RgbaImage, rows: usize, columns: usize) -> HashMap
 
 // handles renderable character
 pub struct Sprite {
-    position: Rect,         // position is in world coordinates
+    world_position: Rect,
     frame: usize,
     frames: HashMap<Direction, Vec<im::RgbaImage>>,
     direction: Direction,
     speed: i64,
-    frame_change_count: u32
+    frame_change_count: u32,
+
+    // maybe better to split this functionality off into another composed object?
+    // there is a consideration of keeping screen and world coordinates in sync
+    screen_position: Rect,
+    off_screen_allowed: bool,
+    viewport: Rect
 }
 
 impl Sprite {
     pub fn new(spritesheet_fname: &str, speed: i64, initial_position: Rect, initial_direction: Direction) -> Sprite {
+        // todo: base starting viewport from the background provided visible window
+        let viewport = Rect{x: 0, y: 0, w: SCREEN_WIDTH as i64, h: SCREEN_HEIGHT as i64};
+        let screen_position = convert_world_coord_to_screen_coord(&initial_position, &viewport);
+
         Self {
-            position: initial_position,
+            world_position: initial_position,
+            screen_position: screen_position,
             frame: 0,
             frames: load_spritesheet(&load_image_asset_buffer(spritesheet_fname), SS_DOWN, SS_ACROSS),
             direction: initial_direction,
             speed: speed,
-            frame_change_count: 0
+            frame_change_count: 0,
+            off_screen_allowed: false,
+            viewport: viewport
         }
     }
 
     pub fn movespr(&mut self, d: Direction) {
         match d {
             Direction::Left => {
-                self.position.x -= self.speed;
+                if self.screen_position.x < 0 && !self.off_screen_allowed {
+                    self.world_position.x = 0;
+                } else {
+                    self.world_position.x -= self.speed;
+                }
             },
             Direction::Right => {
-                self.position.x += self.speed;
+                if self.screen_position.x > SCREEN_WIDTH as i64 - self.current_frame().width() as i64 && !self.off_screen_allowed {
+                    self.world_position.x = SCREEN_WIDTH as i64 + self.viewport.x - self.current_frame().width() as i64;
+                } else {
+                    self.world_position.x += self.speed;
+                }
             },
             Direction::Up => {
-                self.position.y -= self.speed;
+                if self.screen_position.y < 0 && !self.off_screen_allowed {
+                    self.world_position.y = 0;
+                } else {
+                    self.world_position.y -= self.speed;
+                }
             },
             Direction::Down => {
-                self.position.y += self.speed;
+                if self.screen_position.y > SCREEN_HEIGHT as i64 - self.current_frame().height() as i64 && !self.off_screen_allowed {
+                    self.world_position.y = SCREEN_HEIGHT as i64 + self.viewport.y - self.current_frame().height() as i64;
+                } else {
+                    self.world_position.y += self.speed;
+                }
             },
         }
+    }
+
+    pub fn set_viewport(&mut self, viewport: Rect) {
+        self.viewport = viewport;
     }
 
     pub fn current_frame(&self) -> &im::RgbaImage {
@@ -98,7 +132,7 @@ impl GameObject for Sprite {
     }
 
     fn position(&self) -> Option<Rect> {
-        return Some(self.position.clone());
+        return Some(self.world_position.clone());
     }
 
     fn update(&mut self) {
@@ -113,5 +147,8 @@ impl GameObject for Sprite {
             self.frame_change_count = 0;
         }
         self.frame_change_count += 1;
+
+        // update screen coordinates
+        self.screen_position = convert_world_coord_to_screen_coord(&self.world_position, &self.viewport);
     }
 }

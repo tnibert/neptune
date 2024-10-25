@@ -93,6 +93,9 @@ impl GameObject for Player {
                         self.signals_out.notify(NeptuneEvent::Right);
                     }
                 },
+                NeptuneEvent::VisibilityChange(r) => {
+                    self.spr.set_viewport(r);
+                },
                 _ => ()
             }
         }
