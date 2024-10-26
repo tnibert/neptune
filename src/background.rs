@@ -29,8 +29,8 @@ impl Background {
         }
     }
 
-    // return a rect of the current window in world coordinates
-    pub fn window(&self) -> Rect {
+    // return a rect of the current viewport in world coordinates
+    fn viewport(&self) -> Rect {
         Rect {
             x: self.crop_corner_x,
             y: self.crop_corner_y,
@@ -86,19 +86,19 @@ impl GameObject for Background {
             match e {
                 NeptuneEvent::Up => {
                     self.crop_corner_y -= STEP;
-                    self.signals_out.notify(NeptuneEvent::VisibilityChange(self.window()))
+                    self.signals_out.notify(NeptuneEvent::VisibilityChange(self.viewport()))
                 },
                 NeptuneEvent::Down => {
                     self.crop_corner_y += STEP;
-                    self.signals_out.notify(NeptuneEvent::VisibilityChange(self.window()))
+                    self.signals_out.notify(NeptuneEvent::VisibilityChange(self.viewport()))
                 },
                 NeptuneEvent::Left => {
                     self.crop_corner_x -= STEP;
-                    self.signals_out.notify(NeptuneEvent::VisibilityChange(self.window()))
+                    self.signals_out.notify(NeptuneEvent::VisibilityChange(self.viewport()))
                 },
                 NeptuneEvent::Right => {
                     self.crop_corner_x += STEP;
-                    self.signals_out.notify(NeptuneEvent::VisibilityChange(self.window()))
+                    self.signals_out.notify(NeptuneEvent::VisibilityChange(self.viewport()))
                 },
                 _ => ()
             }
