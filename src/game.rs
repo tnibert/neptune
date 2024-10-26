@@ -6,9 +6,10 @@ use crate::observer::NeptuneEvent;
 use crate::player::Player;
 use crate::input::Input;
 use crate::gameobject::GameObject;
-use crate::collision::{Rect, convert_world_coord_to_screen_coord};
+use crate::collision::Rect;
 use crate::sprite::Direction;
 use crate::talkbubble::TalkBubble;
+use crate::viewport::Viewport;
 use std::rc::Rc;
 //use std::time::Instant;
 
@@ -20,7 +21,7 @@ pub struct Game {
     pub input: Input,
     gameobjects: Vec<Box<dyn GameObject>>,
     observer: Rc<Listener>,
-    visiblescene: Rect
+    visiblescene: Viewport
 }
 
 impl Game {
@@ -32,7 +33,7 @@ impl Game {
 
         //let mytilemap = Box::new(TileMap::new(2));
         let mut bg = Box::new(Background::new("map.jpg"));
-        bg.signals_out.subscribe(NeptuneEvent::VisibilityChange(Rect{x: 0, y: 0, w: 0, h: 0}), game_observer.clone());
+        bg.signals_out.subscribe(NeptuneEvent::VisibilityChange(Viewport::new_default()), game_observer.clone());
 
         // todo: do we need the Box::new() above?
         let mut player = Box::new(Player::new(Rect{x: 0, y: 0, w: bg.width() as i64, h: bg.height() as i64}));
@@ -41,9 +42,9 @@ impl Game {
         player.subscribe(bg.observer.clone(), vec![NeptuneEvent::Up, NeptuneEvent::Down, NeptuneEvent::Left, NeptuneEvent::Right]);
         player.subscribe(npc.observer.clone(), vec![NeptuneEvent::Up, NeptuneEvent::Down, NeptuneEvent::Left, NeptuneEvent::Right]);
 
-        bg.signals_out.subscribe(NeptuneEvent::VisibilityChange(Rect{x: 0, y: 0, w: 0, h: 0}), player.observer.clone());
+        bg.signals_out.subscribe(NeptuneEvent::VisibilityChange(Viewport::new_default()), player.observer.clone());
 
-        let visible_scene = bg.position().unwrap();
+        let visible_scene = Viewport::new(bg.position().unwrap());
 
         Game {
             input: input,
@@ -65,7 +66,7 @@ impl GameObject for Game {
                 if let Some(pos) = g.position() {
                     //let start = Instant::now();
 
-                    let screen_pos = convert_world_coord_to_screen_coord(&pos, &self.visiblescene);
+                    let screen_pos = self.visiblescene.screen_coordinates(&pos);
 
                     im::imageops::overlay(&mut screen_img, &img, screen_pos.x as i64, screen_pos.y as i64);
 

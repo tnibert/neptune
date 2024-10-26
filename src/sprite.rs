@@ -1,6 +1,6 @@
 use crate::imgload::*;
 use crate::gameobject::GameObject;
-use crate::collision::{Rect, convert_world_coord_to_screen_coord};
+use crate::collision::{Rect};
 use crate::game::{SCREEN_WIDTH, SCREEN_HEIGHT};
 use crate::viewport::Viewport;
 use std::collections::HashMap;
@@ -67,7 +67,7 @@ impl Sprite {
             speed: speed,
             frame_change_count: 0,
             off_screen_allowed: false,
-            viewport: Viewport::new()
+            viewport: Viewport::new_default()
         }
     }
 
@@ -106,8 +106,8 @@ impl Sprite {
         }
     }
 
-    pub fn set_viewport(&mut self, viewport: Rect) {
-        self.viewport.set(viewport);
+    pub fn set_viewport(&mut self, v: Viewport) {
+        self.viewport = v;
     }
 
     pub fn current_frame(&self) -> &im::RgbaImage {

@@ -4,6 +4,7 @@ use crate::gameobject::GameObject;
 use crate::collision::Rect;
 use crate::player::PLAYER_SPEED;
 use crate::game::{SCREEN_WIDTH, SCREEN_HEIGHT};
+use crate::viewport::Viewport;
 
 use std::rc::Rc;
 //use std::time::Instant;
@@ -30,13 +31,13 @@ impl Background {
     }
 
     // return a rect of the current viewport in world coordinates
-    fn viewport(&self) -> Rect {
-        Rect {
+    fn viewport(&self) -> Viewport {
+        Viewport::new(Rect {
             x: self.crop_corner_x,
             y: self.crop_corner_y,
             w: SCREEN_WIDTH as i64,
             h: SCREEN_HEIGHT as i64
-        }
+        })
     }
 
     pub fn width(&self) -> u32 {

@@ -3,7 +3,7 @@ use core::cell::RefCell;
 use std::rc::Rc;
 use std::mem::{self, Discriminant};
 
-use crate::collision::Rect;
+use crate::viewport::Viewport;
 
 /*
  * Modified implementation of observer pattern for propogating events
@@ -17,7 +17,7 @@ pub enum NeptuneEvent {
     Down,
     Up,
     Talk,
-    VisibilityChange(Rect)
+    VisibilityChange(Viewport)
 }
 
 pub struct Listener {
